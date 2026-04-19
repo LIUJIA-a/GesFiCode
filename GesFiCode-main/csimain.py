@@ -75,6 +75,12 @@ def get_args():
                                  'cross_loc', 'cross_ori'],
                         help="实验类型 (仅 widar 生效)")
 
+    # ── 消融实验模式 ────────────────────────────────────────────────────────
+    parser.add_argument('--ablation', type=str, default='full',
+                        choices=['M0', 'M1', 'M2', 'M3', 'M4', 'full'],
+                        help="消融实验模式: M0=Baseline CE, M1=w/o SupCon, "
+                             "M2=w/o PCL, M3=w/o GRL, M4=w/o HardNCE, full=完整模型")
+
     parser.add_argument('--local_epoch', type=int,
                         default=1, help='local iterations')
     parser.add_argument('--lr', type=float, default=0.0002, help="learning rate")

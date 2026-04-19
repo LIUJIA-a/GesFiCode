@@ -56,6 +56,20 @@ class GeneFi(Algorithm):
         self._round = 0
 
     # ══════════════════════════════════════════════════════════════════════
+    # M0 Baseline: 纯 ResNet18 + CE Loss（使用 Stage③ 的 bottleneck+classifier）
+    # ══════════════════════════════════════════════════════════════════════
+    def update_baseline(self, inputs, labels, opt):
+        """M0 消融: 纯 CE 分类，使用 Stage③ 头以便 predict() 兼容。"""
+        all_x = inputs.cuda().float()
+        all_y = labels.cuda().long()
+        all_z = self.bottleneck(self.featurizer(all_x))
+        cls_loss = F.cross_entropy(self.classifier(all_z), all_y)
+        opt.zero_grad()
+        cls_loss.backward()
+        opt.step()
+        return {'total': cls_loss.item(), 'cls': cls_loss.item()}
+
+    # ══════════════════════════════════════════════════════════════════════
     # 阶段①: Feature Update & Contrastive Pre-training (仅前 3 个 epoch)
     # ══════════════════════════════════════════════════════════════════════
     def update_a(self, inputs, labels, pdlables, opt, x_view1=None, x_view2=None):
@@ -88,10 +102,10 @@ class GeneFi(Algorithm):
     # ══════════════════════════════════════════════════════════════════════
     # 阶段②: Latent Domain Characterization & PCL
     # ══════════════════════════════════════════════════════════════════════
-    def update_d(self, inputs, labels, pdlabels, opt):
+    def update_d(self, inputs, labels, pdlabels, opt, skip_grl=False):
         """
         阶段②训练逻辑：
-        - GRL 域判别损失（ddiscriminator + ReverseLayerF）
+        - GRL 域判别损失（ddiscriminator + ReverseLayerF）[skip_grl=True 时跳过]
         - 原型对比损失 ProtoNCE（强制特征靠近伪域原型 + 伪标签引导）
         - 域分配熵惩罚（防止域坍塌：鼓励各域样本量均衡）
         """
@@ -99,13 +113,14 @@ class GeneFi(Algorithm):
         all_c = pdlabels.cuda().long()
         z1 = self.dbottleneck(self.featurizer(all_x))
 
-        # GRL alpha 自适应调度：round 越深，域混淆越难，alpha 逐渐减小
-        alpha_dyn = self.args.alpha1 * (1.0 / (1.0 + 0.1 * self._round))
-
-        # GRL 域判别损失
-        disc_in = Adver_network.ReverseLayerF.apply(z1, alpha_dyn)
-        disc_out = self.ddiscriminator(disc_in)
-        disc_loss = F.cross_entropy(disc_out, labels.cuda().long())
+        # GRL 域判别损失（M3 消融时跳过）
+        if not skip_grl:
+            alpha_dyn = self.args.alpha1 * (1.0 / (1.0 + 0.1 * self._round))
+            disc_in = Adver_network.ReverseLayerF.apply(z1, alpha_dyn)
+            disc_out = self.ddiscriminator(disc_in)
+            disc_loss = F.cross_entropy(disc_out, labels.cuda().long())
+        else:
+            disc_loss = torch.tensor(0.0, device=all_x.device)
 
         # 原型对比损失：传入伪域标签，使每个样本只靠近自己的原型
         if self.current_domain_prototypes is not None:
@@ -128,7 +143,9 @@ class GeneFi(Algorithm):
             torch.tensor(K, dtype=torch.float32, device=all_x.device))
         ent_penalty = ent_penalty * self.args.lam_ent  # 乘系数
 
-        loss = disc_loss + self.args.lam_pcl * proto + ent_penalty
+        # 保证 loss 始终有连接到模型参数的梯度路径
+        # （skip_grl=True 且 prototypes=None 时, disc_loss 和 proto 都是常量）
+        loss = disc_loss + self.args.lam_pcl * proto + ent_penalty + 0.0 * z1.sum()
         opt.zero_grad()
         loss.backward()
         opt.step()
@@ -211,11 +228,11 @@ class GeneFi(Algorithm):
     # ══════════════════════════════════════════════════════════════════════
     # 阶段③: Domain-invariant & Hard Negative Contrastive Learning
     # ══════════════════════════════════════════════════════════════════════
-    def update(self, inputs, labels, pdlables, opt, Cpd, x_mirrored=None):
+    def update(self, inputs, labels, pdlables, opt, Cpd, x_mirrored=None, skip_grl=False):
         """
         阶段③训练逻辑：
         - 基础手势分类损失
-        - 域不变对抗损失（GRL + weighted CE）
+        - 域不变对抗损失（GRL + weighted CE）[skip_grl=True 时跳过]
         - 镜像困难负样本对比损失（可选）
 
         注意：各损失分别 backward()，避免某个损失数量级过大掩盖其他梯度。
@@ -227,18 +244,21 @@ class GeneFi(Algorithm):
         # ① 分类损失（主导信号）
         cls_loss = F.cross_entropy(self.classifier(all_z), all_y)
 
-        # ② GRL 域对齐损失
-        cpsum = sum(Cpd.values())
-        alpha_dyn = self.args.alpha * (1.0 / (1.0 + 0.1 * self._round))
-        disc_input = Adver_network.ReverseLayerF.apply(all_z, alpha_dyn)
-        disc_out = self.discriminator(disc_input)
-        disc_labels = pdlables.cuda().long()
-        disc_loss = torch.tensor(0.0, device=all_x.device)
-        for i in range(len(disc_labels)):
-            k = pdlables[i]
-            disc_loss = disc_loss + (cpsum / (len(Cpd) * Cpd[k.item()])) * \
-                       F.cross_entropy(disc_out[i].unsqueeze(0), disc_labels[i].unsqueeze(0))
-        disc_loss = disc_loss / len(disc_labels)
+        # ② GRL 域对齐损失（M3 消融时跳过）
+        if not skip_grl:
+            cpsum = sum(Cpd.values())
+            alpha_dyn = self.args.alpha * (1.0 / (1.0 + 0.1 * self._round))
+            disc_input = Adver_network.ReverseLayerF.apply(all_z, alpha_dyn)
+            disc_out = self.discriminator(disc_input)
+            disc_labels = pdlables.cuda().long()
+            disc_loss = torch.tensor(0.0, device=all_x.device)
+            for i in range(len(disc_labels)):
+                k = pdlables[i]
+                disc_loss = disc_loss + (cpsum / (len(Cpd) * Cpd[k.item()])) * \
+                           F.cross_entropy(disc_out[i].unsqueeze(0), disc_labels[i].unsqueeze(0))
+            disc_loss = disc_loss / len(disc_labels)
+        else:
+            disc_loss = torch.tensor(0.0, device=all_x.device)
 
         # ③ 镜像困难负样本对比损失（若提供翻转样本）
         if x_mirrored is not None:
