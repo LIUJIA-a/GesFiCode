@@ -1,0 +1,662 @@
+
+[Ablation Mode] M2
+[WidarDataset] loaded 5250 samples, gesture_map={'G01': 0, 'G02': 1, 'G03': 2, 'G04': 3, 'G05': 4, 'G06': 5}
+[WidarDataset] loaded 1500 samples, gesture_map={'G01': 0, 'G02': 1, 'G03': 2, 'G04': 3, 'G05': 4, 'G06': 5}
+[WidarDataset] loaded 5250 samples, gesture_map={'G01': 0, 'G02': 1, 'G03': 2, 'G04': 3, 'G05': 4, 'G06': 5}
+Train set size: 5250 samples, 165 batches
+Test set size:  1500 samples, 47 batches
+Source eval size: 5250 samples
+
+======== ROUND 0 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss         supcon_loss     
+0                1.9557232857     1.1713497639     1.5687470436    
+1                1.4675784111     0.7010635138     1.5330297947    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({0: 1788, 1: 1749, 2: 1713})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                3.0176925659     2.0691576004     0.9485350251     0.0000000000    
+  Source acc: 0.960381  |  Target acc: 0.773333
+  Best target acc: 0.773333
+
+======== ROUND 1 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss         supcon_loss     
+0                1.4612004757     1.0245640278     0.8732727766    
+1                2.1375126839     1.1506844759     1.9736566544    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({2: 1853, 1: 1732, 0: 1665})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.1441349983     0.0577389076     1.0863960981     0.0000000000    
+  Source acc: 0.887429  |  Target acc: 0.714000
+  Best target acc: 0.773333
+
+======== ROUND 2 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss         supcon_loss     
+0                4.0605406761     2.0966339111     3.9278132915    
+1                1.7167943716     0.3380116224     2.7575654984    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({1: 1781, 0: 1735, 2: 1734})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.3560563326     0.1760710031     1.1799852848     0.0000000000    
+  Source acc: 0.964381  |  Target acc: 0.848667
+  Best target acc: 0.848667
+
+======== ROUND 3 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.3201791346     0.3201791346    
+1                0.0669783726     0.0669783726    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({1: 1801, 2: 1753, 0: 1696})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.1405589581     0.0536594987     1.0868993998     0.0000000000    
+  Source acc: 0.979238  |  Target acc: 0.820000
+  Best target acc: 0.848667
+
+======== ROUND 4 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.0174735300     0.0174735300    
+1                0.0443391204     0.0443391204    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({1: 1808, 0: 1748, 2: 1694})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.3429385424     0.2068872750     1.1360512972     0.0000000000    
+  Source acc: 0.997333  |  Target acc: 0.906000
+  Best target acc: 0.906000
+
+======== ROUND 5 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.1934365779     0.1934365779    
+1                3.4481186867     3.4481186867    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({1: 1810, 2: 1783, 0: 1657})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                5.0008077621     3.8478541374     1.1529535055     0.0000000000    
+  Source acc: 0.992762  |  Target acc: 0.923333
+  Best target acc: 0.923333
+
+======== ROUND 6 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.0298726745     0.0298726745    
+1                0.6094515324     0.6094515324    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({0: 1794, 1: 1729, 2: 1727})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.3273655176     0.1535411924     1.1738243103     0.0000000000    
+  Source acc: 0.994667  |  Target acc: 0.923333
+  Best target acc: 0.923333
+
+======== ROUND 7 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.0719735771     0.0719735771    
+1                0.1378072798     0.1378072798    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({0: 1782, 1: 1739, 2: 1729})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.4165396690     0.2489964366     1.1675422192     0.0000030994    
+  Source acc: 0.999048  |  Target acc: 0.938667
+  Best target acc: 0.938667
+
+======== ROUND 8 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.0540163741     0.0540163741    
+1                0.4236187339     0.4236187339    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({2: 1819, 1: 1722, 0: 1709})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.6540164948     0.6163055301     1.0377109051     0.0000000000    
+  Source acc: 0.991238  |  Target acc: 0.899333
+  Best target acc: 0.938667
+
+======== ROUND 9 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                6.2696475983     6.2696475983    
+1                6.5737314224     6.5737314224    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({1: 1772, 2: 1743, 0: 1735})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.1560069323     0.0922047496     1.0638020039     0.0000002384    
+  Source acc: 1.000000  |  Target acc: 0.906667
+  Best target acc: 0.938667
+
+======== ROUND 10 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.4149397016     0.4149397016    
+1                6.2151074409     6.2151074409    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({0: 1774, 2: 1759, 1: 1717})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.1572550535     0.0121177314     1.1451373100     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.963333
+  Best target acc: 0.963333
+
+======== ROUND 11 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.0275561865     0.0275561865    
+1                0.5301132202     0.5301132202    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({2: 1791, 0: 1756, 1: 1703})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.1648787260     0.0812891796     1.0835895538     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.958000
+  Best target acc: 0.963333
+
+======== ROUND 12 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.1561525464     0.1561525464    
+1                6.3436884880     6.3436884880    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({2: 1781, 1: 1745, 0: 1724})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.6118434668     0.4881109893     1.1237324476     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.964000
+  Best target acc: 0.964000
+
+======== ROUND 13 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.0441398360     0.0441398360    
+1                0.5767078400     0.5767078400    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({0: 1802, 2: 1749, 1: 1699})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.3479444981     0.1642293334     1.1837152243     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.954667
+  Best target acc: 0.964000
+
+======== ROUND 14 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.1955112815     0.1955112815    
+1                0.5331989527     0.5331989527    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({2: 1774, 1: 1758, 0: 1718})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.7920033932     0.5590514541     1.2329518795     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.961333
+  Best target acc: 0.964000
+
+======== ROUND 15 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.0113427285     0.0113427285    
+1                0.0257635228     0.0257635228    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({0: 1804, 1: 1732, 2: 1714})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                5.4318504333     4.3757100105     1.0561401844     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.950000
+  Best target acc: 0.964000
+
+======== ROUND 16 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.0872802138     0.0872802138    
+1                0.0516965799     0.0516965799    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({1: 1814, 2: 1728, 0: 1708})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                5.2699351311     4.1288232803     1.1411118507     0.0000004768    
+  Source acc: 1.000000  |  Target acc: 0.961333
+  Best target acc: 0.964000
+
+======== ROUND 17 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.6084569097     0.6084569097    
+1                0.0286797751     0.0286797751    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({1: 1813, 0: 1753, 2: 1684})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.0200318098     0.0125611899     1.0074706078     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.963333
+  Best target acc: 0.964000
+
+======== ROUND 18 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.2826869786     0.2826869786    
+1                0.0618647896     0.0618647896    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({0: 1782, 1: 1737, 2: 1731})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.0898452997     0.0722901598     1.0175551176     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.967333
+  Best target acc: 0.967333
+
+======== ROUND 19 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.6144669056     0.6144669056    
+1                0.4741194248     0.4741194248    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({2: 1784, 1: 1740, 0: 1726})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                5.6757192612     4.4999799728     1.1757392883     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.961333
+  Best target acc: 0.967333
+
+======== ROUND 20 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.0094982088     0.0094982088    
+1                0.0333139189     0.0333139189    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({1: 1807, 2: 1766, 0: 1677})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.2389944792     0.0132013923     1.2257931232     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.946667
+  Best target acc: 0.967333
+
+======== ROUND 21 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.0264911540     0.0264911540    
+1                0.0310084932     0.0310084932    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({0: 1799, 2: 1745, 1: 1706})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.1474978924     0.0229702126     1.1245276928     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.962000
+  Best target acc: 0.967333
+
+======== ROUND 22 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.4987649918     0.4987649918    
+1                0.0437428206     0.0437428206    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({1: 1782, 0: 1734, 2: 1734})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                2.0491564274     0.8321252465     1.2170312405     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.962667
+  Best target acc: 0.967333
+
+======== ROUND 23 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                5.4532389641     5.4532389641    
+1                0.2965733707     0.2965733707    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({2: 1810, 0: 1748, 1: 1692})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.1070803404     0.1569924057     0.9500879049     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.942667
+  Best target acc: 0.967333
+
+======== ROUND 24 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                6.5087137222     6.5087137222    
+1                0.0109010106     0.0109010106    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({1: 1772, 0: 1743, 2: 1735})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.0359013081     0.0626702160     0.9732310772     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.956667
+  Best target acc: 0.967333
+
+======== ROUND 25 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.1889737546     0.1889737546    
+1                0.0112878382     0.0112878382    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({2: 1801, 1: 1756, 0: 1693})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.1272592545     0.0927337781     1.0345255136     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.958667
+  Best target acc: 0.967333
+
+======== ROUND 26 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.0268144868     0.0268144868    
+1                0.0179781467     0.0179781467    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({1: 1785, 2: 1749, 0: 1716})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.1692245007     0.0893536210     1.0798709393     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.957333
+  Best target acc: 0.967333
+
+======== ROUND 27 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.0380900614     0.0380900614    
+1                0.1208561212     0.1208561212    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({1: 1764, 2: 1758, 0: 1728})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                0.9680390358     0.0197646432     0.9482743740     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.961333
+  Best target acc: 0.967333
+
+======== ROUND 28 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                5.3450093269     5.3450093269    
+1                0.0056792735     0.0056792735    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({1: 1813, 0: 1760, 2: 1677})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.1574457884     0.0601826720     1.0972630978     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.956000
+  Best target acc: 0.967333
+
+======== ROUND 29 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.0090122595     0.0090122595    
+1                0.0163564309     0.0163564309    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({1: 1832, 2: 1713, 0: 1705})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                4.4602751732     3.4126195908     1.0476555824     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.956667
+  Best target acc: 0.967333
+
+======== ROUND 30 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.2942083180     0.2942083180    
+1                0.0421127267     0.0421127267    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({1: 1783, 0: 1775, 2: 1692})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                4.6406536102     3.5525608063     1.0880928040     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.961333
+  Best target acc: 0.967333
+
+======== ROUND 31 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                5.9608507156     5.9608507156    
+1                0.0198426787     0.0198426787    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({1: 1790, 2: 1730, 0: 1730})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.0536004305     0.0624138154     0.9911866188     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.957333
+  Best target acc: 0.967333
+
+======== ROUND 32 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.2459793836     0.2459793836    
+1                0.0829627141     0.0829627141    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({0: 1777, 1: 1738, 2: 1735})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.1254272461     0.0395002440     1.0859270096     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.956667
+  Best target acc: 0.967333
+
+======== ROUND 33 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.1833593845     0.1833593845    
+1                5.9713516235     5.9713516235    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({0: 1788, 2: 1756, 1: 1706})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.2526923418     0.1211878583     1.1315045357     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.949333
+  Best target acc: 0.967333
+
+======== ROUND 34 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.4593508244     0.4593508244    
+1                0.0048120422     0.0048120422    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({2: 1776, 0: 1761, 1: 1713})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.2913661003     0.3244904578     0.9668756723     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.960000
+  Best target acc: 0.967333
+
+======== ROUND 35 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.3384834528     0.3384834528    
+1                0.0094824666     0.0094824666    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({2: 1784, 0: 1770, 1: 1696})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.3454176188     0.2079059333     1.1375117302     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.958667
+  Best target acc: 0.967333
+
+======== ROUND 36 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.0511282943     0.0511282943    
+1                0.0278711170     0.0278711170    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({1: 1759, 0: 1758, 2: 1733})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.1894387007     0.0555864461     1.1338522434     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.954667
+  Best target acc: 0.967333
+
+======== ROUND 37 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.0820902660     0.0820902660    
+1                6.0772409439     6.0772409439    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({1: 1760, 2: 1756, 0: 1734})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.2367451191     0.0886874348     1.1480576992     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.954000
+  Best target acc: 0.967333
+
+======== ROUND 38 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.0188509449     0.0188509449    
+1                0.0194128174     0.0194128174    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({1: 1771, 0: 1765, 2: 1714})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.1223024130     0.0189503320     1.1033520699     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.959333
+  Best target acc: 0.967333
+
+======== ROUND 39 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                5.8328232765     5.8328232765    
+1                0.0208350625     0.0208350625    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({1: 1813, 2: 1750, 0: 1687})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.2719899416     0.1269854754     1.1450045109     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.948667
+  Best target acc: 0.967333
+
+======== ROUND 40 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                6.2125425339     6.2125425339    
+1                0.2489306927     0.2489306927    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({1: 1811, 0: 1756, 2: 1683})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.2254475355     0.0174102671     1.2080372572     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.954667
+  Best target acc: 0.967333
+
+======== ROUND 41 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.2357389927     0.2357389927    
+1                0.0753773823     0.0753773823    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({0: 1777, 2: 1755, 1: 1718})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.1180279255     0.1123762354     1.0056517124     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.966000
+  Best target acc: 0.967333
+
+======== ROUND 42 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.0095232436     0.0095232436    
+1                0.3375200331     0.3375200331    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({1: 1794, 2: 1729, 0: 1727})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.4518339634     0.3266454935     1.1251884699     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.956000
+  Best target acc: 0.967333
+
+======== ROUND 43 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.4705408812     0.4705408812    
+1                0.0054981839     0.0054981839    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({1: 1756, 0: 1751, 2: 1743})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.2549046278     0.0604831055     1.1944215298     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.960000
+  Best target acc: 0.967333
+
+======== ROUND 44 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.0102781029     0.0102781029    
+1                4.3400297165     4.3400297165    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({2: 1775, 0: 1769, 1: 1706})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.1380363703     0.0164805800     1.1215558052     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.965333
+  Best target acc: 0.967333
+
+======== ROUND 45 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.0070335106     0.0070335106    
+1                0.1461743563     0.1461743563    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({2: 1762, 0: 1752, 1: 1736})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.1222336292     0.0183393508     1.1038942337     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.949333
+  Best target acc: 0.967333
+
+======== ROUND 46 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.2243577391     0.2243577391    
+1                0.1583316624     0.1583316624    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({2: 1763, 1: 1755, 0: 1732})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.1463592052     0.0525493249     1.0938098431     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.960667
+  Best target acc: 0.967333
+
+======== ROUND 47 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.0882160664     0.0882160664    
+1                5.6019577980     5.6019577980    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({1: 1788, 0: 1751, 2: 1711})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.0726819038     0.0588901713     1.0137916803     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.964667
+  Best target acc: 0.967333
+
+======== ROUND 48 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.0528242141     0.0528242141    
+1                0.0092252912     0.0092252912    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({2: 1779, 0: 1741, 1: 1730})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.2754719257     0.1076332778     1.1678386927     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.950667
+  Best target acc: 0.967333
+
+======== ROUND 49 ========  [Ablation: M2]
+==== Stage 1: SupCon Pre-training ====
+epoch            total_loss       cls_loss        
+0                0.7291993499     0.7291993499    
+1                0.0480940491     0.0480940491    
+==== Stage 2: SKIPPED (M2 ablation) ====
+  Random domain assignment: Counter({0: 1763, 1: 1757, 2: 1730})
+==== Stage 3: Domain-invariant + HardNCE ====
+epoch            total_loss       cls_loss         dis_loss         hard_loss       
+0                1.1380604506     0.0196536835     1.1184067726     0.0000000000    
+  Source acc: 1.000000  |  Target acc: 0.963333
+  Best target acc: 0.967333
+
+Results saved to log/ablation_cross_user_M2
+acc.txt: log/ablation_cross_user_M2/acc.txt
+bestacc.txt: log/ablation_cross_user_M2/bestacc.txt

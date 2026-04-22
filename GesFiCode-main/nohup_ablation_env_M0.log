@@ -1,0 +1,512 @@
+
+[Ablation Mode] M0
+[WidarDataset] loaded 9749 samples, gesture_map={'G01': 0, 'G02': 1, 'G03': 2, 'G04': 3, 'G05': 4, 'G06': 5}
+[WidarDataset] loaded 2997 samples, gesture_map={'G01': 0, 'G02': 1, 'G03': 2, 'G04': 3, 'G05': 4, 'G06': 5}
+[WidarDataset] loaded 9749 samples, gesture_map={'G01': 0, 'G02': 1, 'G03': 2, 'G04': 3, 'G05': 4, 'G06': 5}
+Train set size: 9749 samples, 305 batches
+Test set size:  2997 samples, 94 batches
+Source eval size: 9749 samples
+
+======== ROUND 0 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.1860223562     0.1860223562    
+1                0.0376996063     0.0376996063    
+2                0.1420399398     0.1420399398    
+3                0.0139736310     0.0139736310    
+  Source acc: 0.995179  |  Target acc: 0.965299
+  Best target acc: 0.965299
+
+======== ROUND 1 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.3853544891     0.3853544891    
+1                0.1291152686     0.1291152686    
+2                0.0450743660     0.0450743660    
+3                0.0645624176     0.0645624176    
+  Source acc: 0.998359  |  Target acc: 0.977978
+  Best target acc: 0.977978
+
+======== ROUND 2 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.1496188045     0.1496188045    
+1                0.0078619737     0.0078619737    
+2                0.0028315934     0.0028315934    
+3                0.0319959894     0.0319959894    
+  Source acc: 0.996718  |  Target acc: 0.952286
+  Best target acc: 0.977978
+
+======== ROUND 3 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0093376115     0.0093376115    
+1                0.0166926663     0.0166926663    
+2                0.1484508663     0.1484508663    
+3                0.0021324896     0.0021324896    
+  Source acc: 0.999795  |  Target acc: 0.983317
+  Best target acc: 0.983317
+
+======== ROUND 4 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0042077643     0.0042077643    
+1                0.0109725567     0.0109725567    
+2                0.0034093207     0.0034093207    
+3                0.0086018378     0.0086018378    
+  Source acc: 0.997743  |  Target acc: 0.965966
+  Best target acc: 0.983317
+
+======== ROUND 5 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0034739326     0.0034739326    
+1                0.0039627687     0.0039627687    
+2                0.0016519884     0.0016519884    
+3                0.0020156051     0.0020156051    
+  Source acc: 0.999590  |  Target acc: 0.988322
+  Best target acc: 0.988322
+
+======== ROUND 6 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0318608582     0.0318608582    
+1                0.0370399952     0.0370399952    
+2                0.0018702304     0.0018702304    
+3                0.0148869641     0.0148869641    
+  Source acc: 0.997436  |  Target acc: 0.964965
+  Best target acc: 0.988322
+
+======== ROUND 7 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0409076177     0.0409076177    
+1                0.0081163840     0.0081163840    
+2                0.0004625107     0.0004625107    
+3                0.0041979859     0.0041979859    
+  Source acc: 0.981126  |  Target acc: 0.953954
+  Best target acc: 0.988322
+
+======== ROUND 8 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0214448608     0.0214448608    
+1                0.0005811412     0.0005811412    
+2                0.0876528174     0.0876528174    
+3                0.0135313468     0.0135313468    
+  Source acc: 0.999795  |  Target acc: 0.986653
+  Best target acc: 0.988322
+
+======== ROUND 9 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0035116444     0.0035116444    
+1                0.0211504251     0.0211504251    
+2                0.0028703746     0.0028703746    
+3                0.0018014988     0.0018014988    
+  Source acc: 1.000000  |  Target acc: 0.981982
+  Best target acc: 0.988322
+
+======== ROUND 10 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0005443703     0.0005443703    
+1                0.0003045471     0.0003045471    
+2                0.0025073146     0.0025073146    
+3                0.0009474367     0.0009474367    
+  Source acc: 1.000000  |  Target acc: 0.990324
+  Best target acc: 0.990324
+
+======== ROUND 11 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0125551336     0.0125551336    
+1                0.0029198853     0.0029198853    
+2                0.0008844768     0.0008844768    
+3                0.0003780678     0.0003780678    
+  Source acc: 1.000000  |  Target acc: 0.990324
+  Best target acc: 0.990324
+
+======== ROUND 12 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0007829340     0.0007829340    
+1                0.0025192616     0.0025192616    
+2                0.0708152577     0.0708152577    
+3                0.0004151890     0.0004151890    
+  Source acc: 1.000000  |  Target acc: 0.991658
+  Best target acc: 0.991658
+
+======== ROUND 13 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0004506187     0.0004506187    
+1                0.0010651248     0.0010651248    
+2                0.0006397410     0.0006397410    
+3                0.0011830797     0.0011830797    
+  Source acc: 1.000000  |  Target acc: 0.989990
+  Best target acc: 0.991658
+
+======== ROUND 14 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0007071917     0.0007071917    
+1                0.0005786809     0.0005786809    
+2                0.0078810649     0.0078810649    
+3                0.0012587047     0.0012587047    
+  Source acc: 1.000000  |  Target acc: 0.990991
+  Best target acc: 0.991658
+
+======== ROUND 15 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0004029053     0.0004029053    
+1                0.0175190363     0.0175190363    
+2                0.0007202967     0.0007202967    
+3                0.0017953515     0.0017953515    
+  Source acc: 1.000000  |  Target acc: 0.988322
+  Best target acc: 0.991658
+
+======== ROUND 16 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0029031560     0.0029031560    
+1                0.0036289084     0.0036289084    
+2                0.0006863124     0.0006863124    
+3                0.0038819076     0.0038819076    
+  Source acc: 1.000000  |  Target acc: 0.990657
+  Best target acc: 0.991658
+
+======== ROUND 17 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0020867321     0.0020867321    
+1                0.0008798108     0.0008798108    
+2                0.0007552757     0.0007552757    
+3                0.0021115583     0.0021115583    
+  Source acc: 1.000000  |  Target acc: 0.992993
+  Best target acc: 0.992993
+
+======== ROUND 18 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0103425989     0.0103425989    
+1                0.0034843851     0.0034843851    
+2                0.0011485056     0.0011485056    
+3                0.0016579514     0.0016579514    
+  Source acc: 1.000000  |  Target acc: 0.992326
+  Best target acc: 0.992993
+
+======== ROUND 19 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0015519637     0.0015519637    
+1                0.0011887903     0.0011887903    
+2                0.0025390969     0.0025390969    
+3                0.0021667758     0.0021667758    
+  Source acc: 1.000000  |  Target acc: 0.990657
+  Best target acc: 0.992993
+
+======== ROUND 20 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0046526361     0.0046526361    
+1                0.0028406552     0.0028406552    
+2                0.0012853969     0.0012853969    
+3                0.0012680279     0.0012680279    
+  Source acc: 1.000000  |  Target acc: 0.991658
+  Best target acc: 0.992993
+
+======== ROUND 21 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0015549699     0.0015549699    
+1                0.0008811218     0.0008811218    
+2                0.0020609659     0.0020609659    
+3                0.0011916520     0.0011916520    
+  Source acc: 1.000000  |  Target acc: 0.991992
+  Best target acc: 0.992993
+
+======== ROUND 22 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0008047291     0.0008047291    
+1                0.0012427049     0.0012427049    
+2                0.0010015341     0.0010015341    
+3                0.0014584092     0.0014584092    
+  Source acc: 1.000000  |  Target acc: 0.990991
+  Best target acc: 0.992993
+
+======== ROUND 23 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0030060050     0.0030060050    
+1                0.0012217525     0.0012217525    
+2                0.0019763638     0.0019763638    
+3                0.0009112726     0.0009112726    
+  Source acc: 1.000000  |  Target acc: 0.991658
+  Best target acc: 0.992993
+
+======== ROUND 24 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0013256362     0.0013256362    
+1                0.0010578975     0.0010578975    
+2                0.0009498238     0.0009498238    
+3                0.0008151552     0.0008151552    
+  Source acc: 1.000000  |  Target acc: 0.991325
+  Best target acc: 0.992993
+
+======== ROUND 25 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0022420655     0.0022420655    
+1                0.0021495274     0.0021495274    
+2                0.0031612839     0.0031612839    
+3                0.0070974287     0.0070974287    
+  Source acc: 1.000000  |  Target acc: 0.991325
+  Best target acc: 0.992993
+
+======== ROUND 26 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0015303439     0.0015303439    
+1                0.0033179764     0.0033179764    
+2                0.0009726447     0.0009726447    
+3                0.0021228883     0.0021228883    
+  Source acc: 1.000000  |  Target acc: 0.991325
+  Best target acc: 0.992993
+
+======== ROUND 27 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0016836015     0.0016836015    
+1                0.0017524750     0.0017524750    
+2                0.0013356232     0.0013356232    
+3                0.0014526177     0.0014526177    
+  Source acc: 1.000000  |  Target acc: 0.991325
+  Best target acc: 0.992993
+
+======== ROUND 28 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0049037584     0.0049037584    
+1                0.0009862419     0.0009862419    
+2                0.0129771549     0.0129771549    
+3                0.0062753544     0.0062753544    
+  Source acc: 1.000000  |  Target acc: 0.993660
+  Best target acc: 0.993660
+
+======== ROUND 29 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0559344590     0.0559344590    
+1                0.0015183159     0.0015183159    
+2                0.0014144755     0.0014144755    
+3                0.0011455806     0.0011455806    
+  Source acc: 1.000000  |  Target acc: 0.991992
+  Best target acc: 0.993660
+
+======== ROUND 30 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0637175962     0.0637175962    
+1                0.0013511095     0.0013511095    
+2                0.0007259155     0.0007259155    
+3                0.0015969379     0.0015969379    
+  Source acc: 1.000000  |  Target acc: 0.991658
+  Best target acc: 0.993660
+
+======== ROUND 31 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0006292830     0.0006292830    
+1                0.0014356232     0.0014356232    
+2                0.0008586196     0.0008586196    
+3                0.0020578681     0.0020578681    
+  Source acc: 1.000000  |  Target acc: 0.992326
+  Best target acc: 0.993660
+
+======== ROUND 32 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0018177056     0.0018177056    
+1                0.0008385184     0.0008385184    
+2                0.0026962424     0.0026962424    
+3                0.0008680642     0.0008680642    
+  Source acc: 1.000000  |  Target acc: 0.992993
+  Best target acc: 0.993660
+
+======== ROUND 33 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0011009739     0.0011009739    
+1                0.0012985624     0.0012985624    
+2                0.0019566563     0.0019566563    
+3                0.0011086660     0.0011086660    
+  Source acc: 1.000000  |  Target acc: 0.991992
+  Best target acc: 0.993660
+
+======== ROUND 34 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0014934557     0.0014934557    
+1                0.0020812147     0.0020812147    
+2                0.0048287334     0.0048287334    
+3                0.0012064945     0.0012064945    
+  Source acc: 1.000000  |  Target acc: 0.992326
+  Best target acc: 0.993660
+
+======== ROUND 35 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0009711808     0.0009711808    
+1                0.0039423918     0.0039423918    
+2                0.0009373425     0.0009373425    
+3                0.0018179709     0.0018179709    
+  Source acc: 1.000000  |  Target acc: 0.991992
+  Best target acc: 0.993660
+
+======== ROUND 36 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0011221302     0.0011221302    
+1                0.0012939858     0.0012939858    
+2                0.0015053657     0.0015053657    
+3                0.0015513329     0.0015513329    
+  Source acc: 1.000000  |  Target acc: 0.991658
+  Best target acc: 0.993660
+
+======== ROUND 37 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0011291266     0.0011291266    
+1                0.0010017975     0.0010017975    
+2                0.0008537422     0.0008537422    
+3                0.0010287230     0.0010287230    
+  Source acc: 1.000000  |  Target acc: 0.991658
+  Best target acc: 0.993660
+
+======== ROUND 38 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0042194361     0.0042194361    
+1                0.0010309462     0.0010309462    
+2                0.0019847127     0.0019847127    
+3                0.0011223070     0.0011223070    
+  Source acc: 1.000000  |  Target acc: 0.991325
+  Best target acc: 0.993660
+
+======== ROUND 39 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0011225436     0.0011225436    
+1                0.0022069353     0.0022069353    
+2                0.0010373322     0.0010373322    
+3                0.0017146972     0.0017146972    
+  Source acc: 1.000000  |  Target acc: 0.991992
+  Best target acc: 0.993660
+
+======== ROUND 40 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0024417681     0.0024417681    
+1                0.0012143685     0.0012143685    
+2                0.0012582714     0.0012582714    
+3                0.0010648359     0.0010648359    
+  Source acc: 1.000000  |  Target acc: 0.991658
+  Best target acc: 0.993660
+
+======== ROUND 41 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0012065575     0.0012065575    
+1                0.0010014521     0.0010014521    
+2                0.0013598123     0.0013598123    
+3                0.0008499447     0.0008499447    
+  Source acc: 1.000000  |  Target acc: 0.991992
+  Best target acc: 0.993660
+
+======== ROUND 42 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0009185940     0.0009185940    
+1                0.0017465992     0.0017465992    
+2                0.0009348006     0.0009348006    
+3                0.0015749441     0.0015749441    
+  Source acc: 1.000000  |  Target acc: 0.991992
+  Best target acc: 0.993660
+
+======== ROUND 43 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0013509715     0.0013509715    
+1                0.0031552084     0.0031552084    
+2                0.0012820994     0.0012820994    
+3                0.0020669897     0.0020669897    
+  Source acc: 1.000000  |  Target acc: 0.991992
+  Best target acc: 0.993660
+
+======== ROUND 44 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0008291478     0.0008291478    
+1                0.0009421401     0.0009421401    
+2                0.0086578531     0.0086578531    
+3                0.0008824239     0.0008824239    
+  Source acc: 1.000000  |  Target acc: 0.992326
+  Best target acc: 0.993660
+
+======== ROUND 45 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0012149739     0.0012149739    
+1                0.0016477403     0.0016477403    
+2                0.0008040496     0.0008040496    
+3                0.0021636761     0.0021636761    
+  Source acc: 1.000000  |  Target acc: 0.990991
+  Best target acc: 0.993660
+
+======== ROUND 46 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0010715827     0.0010715827    
+1                0.0008651320     0.0008651320    
+2                0.0018031086     0.0018031086    
+3                0.0011581073     0.0011581073    
+  Source acc: 1.000000  |  Target acc: 0.991325
+  Best target acc: 0.993660
+
+======== ROUND 47 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0020567381     0.0020567381    
+1                0.0013985389     0.0013985389    
+2                0.0014633662     0.0014633662    
+3                0.0017956701     0.0017956701    
+  Source acc: 1.000000  |  Target acc: 0.992659
+  Best target acc: 0.993660
+
+======== ROUND 48 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0172462836     0.0172462836    
+1                0.0064704679     0.0064704679    
+2                0.0010684861     0.0010684861    
+3                0.0009176997     0.0009176997    
+  Source acc: 1.000000  |  Target acc: 0.992659
+  Best target acc: 0.993660
+
+======== ROUND 49 ========  [Ablation: M0]
+==== M0 Baseline: CE Only ====
+epoch            total_loss       cls_loss        
+0                0.0009934290     0.0009934290    
+1                0.0009335627     0.0009335627    
+2                0.0019345497     0.0019345497    
+3                0.0062862001     0.0062862001    
+  Source acc: 1.000000  |  Target acc: 0.992659
+  Best target acc: 0.993660
+
+Results saved to log/ablation_cross_env_M0
+acc.txt: log/ablation_cross_env_M0/acc.txt
+bestacc.txt: log/ablation_cross_env_M0/bestacc.txt
