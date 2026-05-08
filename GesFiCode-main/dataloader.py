@@ -12,9 +12,9 @@ import torchvision.transforms as transforms
 # 支持通过 allowed_* 参数灵活过滤，动态构建从 0 开始的连续标签映射
 # ═══════════════════════════════════════════════════════════════════════════
 
-# Widar 文件名正则：匹配 E1_U05_G01_L1_O1_R01.png 格式
+# Widar 文件名正则：匹配 E1_U05_G01_L1_O1_R01.png 或 RX1_E1_U05_G01_L1_O1_R01.png
 _WIDAR_PATTERN = re.compile(
-    r'^(E\d+)_(U\d+)_(G\d+)_(L\d+)_(O\d+)_(R\d+)\.png$'
+    r'^(?:(RX\d+)_)?(E\d+)_(U\d+)_(G\d+)_(L\d+)_(O\d+)_(R\d+)(?:_3AP)?\.png$'
 )
 
 
@@ -46,7 +46,7 @@ class WidarDataset(data.Dataset):
     def __init__(self, data_dir, transform=None,
                  allowed_envs=None, allowed_users=None,
                  allowed_gestures=None, allowed_locs=None,
-                 allowed_oris=None, gesture_map=None):
+                 allowed_oris=None, gesture_map=None, allowed_rx=None):
         self.transform = transform
         self.img_paths = []
         self.img_labels = []
@@ -58,6 +58,7 @@ class WidarDataset(data.Dataset):
         gest_set = set(allowed_gestures) if allowed_gestures else None
         loc_set = set(allowed_locs) if allowed_locs else None
         ori_set = set(allowed_oris) if allowed_oris else None
+        rx_set = set(allowed_rx) if allowed_rx else None
 
         # ── 第一遍扫描：收集有效文件，提取 gesture ID 集合 ─────────────────
         valid_files = []          # [(filepath, gesture_str), ...]
@@ -68,7 +69,11 @@ class WidarDataset(data.Dataset):
             m = _WIDAR_PATTERN.match(f)
             if m is None:
                 continue
-            env, user, gesture, loc, ori, rep = m.groups()
+            rx, env, user, gesture, loc, ori, rep = m.groups()
+
+            # RX 过滤
+            if rx_set and (rx is None or rx not in rx_set):
+                continue
 
             # 逐维度过滤
             if env_set and env not in env_set:

@@ -87,13 +87,14 @@ def build_widar_loaders(args, img_transform, img_transformte):
     """
     data_dir = args.data_path
     gmap = WIDAR_GESTURE_MAP
+    rx_filter = [args.rx] if getattr(args, 'rx', None) else None
 
     if args.experiment == 'in_domain':
         # 全量数据，transform=None（稍后通过 TransformSubset 分别包装）
         full_dataset = WidarDataset(
             data_dir, transform=None,
             allowed_gestures=WIDAR_GESTURES,
-            gesture_map=gmap
+            gesture_map=gmap, allowed_rx=rx_filter
         )
         # 80/20 随机划分（固定种子保证可复现）
         total = len(full_dataset)
@@ -113,51 +114,72 @@ def build_widar_loaders(args, img_transform, img_transformte):
         dataset_source = WidarDataset(
             data_dir, transform=img_transform,
             allowed_envs=['E1'], allowed_users=train_users,
-            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap
+            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap, allowed_rx=rx_filter
         )
         dataset_target = WidarDataset(
             data_dir, transform=img_transformte,
             allowed_envs=['E1'], allowed_users=test_users,
-            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap
+            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap, allowed_rx=rx_filter
         )
 
     elif args.experiment == 'cross_env':
-        # E1+E2 训练，E3 测试
+        # 支持 leave-one-out: --train_envs E1,E2 则测试剩余环境
+        if getattr(args, 'train_envs', None):
+            train_envs = [e.strip() for e in args.train_envs.split(',')]
+            all_envs = ['E1', 'E2', 'E3']
+            test_envs = [e for e in all_envs if e not in train_envs]
+        else:
+            train_envs = ['E1', 'E2']
+            test_envs = ['E3']
         dataset_source = WidarDataset(
             data_dir, transform=img_transform,
-            allowed_envs=['E1', 'E2'],
-            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap
+            allowed_envs=train_envs,
+            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap, allowed_rx=rx_filter
         )
         dataset_target = WidarDataset(
             data_dir, transform=img_transformte,
-            allowed_envs=['E3'],
-            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap
+            allowed_envs=test_envs,
+            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap, allowed_rx=rx_filter
         )
 
     elif args.experiment == 'cross_loc':
-        # E1 内，按位置划分
+        # 支持 leave-one-out: --train_envs L1,L2,L3,L4
+        if getattr(args, 'train_envs', None):
+            train_locs = [e.strip() for e in args.train_envs.split(',')]
+            all_locs = ['L1', 'L2', 'L3', 'L4', 'L5']
+            test_locs = [e for e in all_locs if e not in train_locs]
+        else:
+            train_locs = ['L1', 'L2', 'L3', 'L4']
+            test_locs = ['L5']
         dataset_source = WidarDataset(
             data_dir, transform=img_transform,
-            allowed_envs=['E1'], allowed_locs=['L1', 'L2', 'L3', 'L4'],
-            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap
+            allowed_envs=['E1'], allowed_locs=train_locs,
+            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap, allowed_rx=rx_filter
         )
         dataset_target = WidarDataset(
             data_dir, transform=img_transformte,
-            allowed_envs=['E1'], allowed_locs=['L5'],
-            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap
+            allowed_envs=['E1'], allowed_locs=test_locs,
+            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap, allowed_rx=rx_filter
         )
 
     elif args.experiment == 'cross_ori':
-        # E1 内，按方向划分
+        # 支持 leave-one-out: --train_envs O1,O2,O3,O4
+        if getattr(args, 'train_envs', None):
+            train_oris = [e.strip() for e in args.train_envs.split(',')]
+            all_oris = ['O1', 'O2', 'O3', 'O4', 'O5']
+            test_oris = [e for e in all_oris if e not in train_oris]
+        else:
+            train_oris = ['O1', 'O2', 'O3', 'O4']
+            test_oris = ['O5']
         dataset_source = WidarDataset(
             data_dir, transform=img_transform,
-            allowed_envs=['E1'], allowed_oris=['O1', 'O2', 'O3', 'O4'],
-            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap
+            allowed_envs=['E1'], allowed_oris=train_oris,
+            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap, allowed_rx=rx_filter
         )
         dataset_target = WidarDataset(
             data_dir, transform=img_transformte,
-            allowed_envs=['E1'], allowed_oris=['O5'],
-            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap
+            allowed_envs=['E1'], allowed_oris=test_oris,
+            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap, allowed_rx=rx_filter
         )
     else:
         raise ValueError(f"Unknown experiment type: {args.experiment}")
@@ -172,12 +194,13 @@ def build_widar_source_eval(args, img_transformte):
     """
     data_dir = args.data_path
     gmap = WIDAR_GESTURE_MAP
+    rx_filter = [args.rx] if getattr(args, 'rx', None) else None
 
     if args.experiment == 'in_domain':
         full_dataset = WidarDataset(
             data_dir, transform=None,
             allowed_gestures=WIDAR_GESTURES,
-            gesture_map=gmap
+            gesture_map=gmap, allowed_rx=rx_filter
         )
         total = len(full_dataset)
         train_size = int(0.8 * total)
@@ -193,28 +216,40 @@ def build_widar_source_eval(args, img_transformte):
         return WidarDataset(
             data_dir, transform=img_transformte,
             allowed_envs=['E1'], allowed_users=train_users,
-            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap
+            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap, allowed_rx=rx_filter
         )
 
     elif args.experiment == 'cross_env':
+        if getattr(args, 'train_envs', None):
+            train_envs = [e.strip() for e in args.train_envs.split(',')]
+        else:
+            train_envs = ['E1', 'E2']
         return WidarDataset(
             data_dir, transform=img_transformte,
-            allowed_envs=['E1', 'E2'],
-            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap
+            allowed_envs=train_envs,
+            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap, allowed_rx=rx_filter
         )
 
     elif args.experiment == 'cross_loc':
+        if getattr(args, 'train_envs', None):
+            train_locs = [e.strip() for e in args.train_envs.split(',')]
+        else:
+            train_locs = ['L1', 'L2', 'L3', 'L4']
         return WidarDataset(
             data_dir, transform=img_transformte,
-            allowed_envs=['E1'], allowed_locs=['L1', 'L2', 'L3', 'L4'],
-            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap
+            allowed_envs=['E1'], allowed_locs=train_locs,
+            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap, allowed_rx=rx_filter
         )
 
     elif args.experiment == 'cross_ori':
+        if getattr(args, 'train_envs', None):
+            train_oris = [e.strip() for e in args.train_envs.split(',')]
+        else:
+            train_oris = ['O1', 'O2', 'O3', 'O4']
         return WidarDataset(
             data_dir, transform=img_transformte,
-            allowed_envs=['E1'], allowed_oris=['O1', 'O2', 'O3', 'O4'],
-            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap
+            allowed_envs=['E1'], allowed_oris=train_oris,
+            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap, allowed_rx=rx_filter
         )
     else:
         raise ValueError(f"Unknown experiment type: {args.experiment}")
@@ -269,6 +304,33 @@ def trainer(trainmodel, img_transform, img_transformte, device, opta, scheduler,
         )
 
     batch_size = args.batch_size if args else 32
+
+    # ── 数据缩减 ──────────────────────────────────────────────────────────────
+    data_frac = getattr(args, 'data_fraction', 1.0) if args else 1.0
+    if data_frac < 1.0:
+        n_total = len(dataset_source)
+        n_keep = max(1, int(n_total * data_frac))
+        generator = torch.Generator().manual_seed(42)
+        subset, _ = torch.utils.data.random_split(
+            dataset_source, [n_keep, n_total - n_keep], generator=generator
+        )
+        class SubsetProxy(torch.utils.data.Dataset):
+            def __init__(self, subset):
+                self.subset = subset
+            def _root(self):
+                ds = self.subset
+                while hasattr(ds, 'dataset'):
+                    ds = ds.dataset
+                return ds
+            def set_labels_by_index(self, tlabels=None, tindex=None, label_type='domain_label'):
+                self._root().set_labels_by_index(tlabels, tindex, label_type)
+            def __getitem__(self, idx):
+                return self.subset[idx]
+            def __len__(self):
+                return len(self.subset)
+        dataset_source = SubsetProxy(subset)
+        print(f'[Data Fraction] Using {data_frac*100:.0f}% of training data: {n_keep}/{n_total}')
+
     train_loader = torch.utils.data.DataLoader(
         dataset=dataset_source, batch_size=batch_size,
         shuffle=True, num_workers=2

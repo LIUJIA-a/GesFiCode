@@ -89,6 +89,12 @@ def get_args():
     parser.add_argument('--weight_decay', type=float, default=5e-4)
     parser.add_argument('--exp_id', type=str, default='exp_1',
                         help="experiment identifier, used to create unique log directory")
+    parser.add_argument('--train_envs', type=str, default=None,
+                        help="comma-separated train envs for leave-one-out, e.g. E1,E2")
+    parser.add_argument('--rx', type=str, default=None,
+                        help="receiver filter, e.g. RX2 for single receiver")
+    parser.add_argument('--data_fraction', type=float, default=1.0,
+                        help="fraction of training data to use (0-1)")
     args = parser.parse_args()
     args = act_param_init(args)
     return args
