@@ -4,13 +4,112 @@ import numpy as np
 import torch.nn as nn
 import random
 import numbers
+import os
 from collections import Counter
 from tqdm import tqdm
 from torchvision.transforms import functional as F1
 from sklearn.metrics import confusion_matrix
 from algorithm import *
-from dataloader import *
+from dataloader import WidarDataset, TransformSubset, XRF55Dataset, XRF55_TARGET_GESTURES, datatrcsie, datatecsie
 from mytransforms import Physical_Mask_Augment, Frequency_Axis_Flip
+
+
+def compute_flip_sensitivity(dataset_source, args):
+    """
+    Compute per-class direction sensitivity via Diversity Ratio.
+
+    For each class c, measure how much adding frequency-flipped samples
+    increases the intra-class feature diversity:
+
+        r_c = tr(Cov(X_c ∪ X̃_c)) / tr(Cov(X_c))
+
+    where X_c are original pixel features and X̃_c are their freq-axis flips.
+
+    - r_c ≈ 1: flip adds no new mode → direction-agnostic (safe augmentation)
+    - r_c >> 1: flip introduces a new mode → direction-sensitive (hard negative)
+
+    This handles both:
+    - XRF55 Push (only push samples) → flip adds pull-like mode → r_c high
+    - Widar Push&Pull (both directions in one class) → flip adds nothing new → r_c ≈ 1
+
+    Returns:
+        direction_weights: dict mapping class_label (int) -> float in [0, 1]
+            0.0 = direction-agnostic (flip = positive pair)
+            1.0 = maximally direction-sensitive (flip = hard negative)
+    """
+    from PIL import Image
+    from collections import defaultdict
+
+    print('\n[Direction Sensitivity] Computing diversity-ratio based sensitivity...')
+
+    # Get the root dataset to access file paths
+    ds = dataset_source
+    while hasattr(ds, 'subset'):
+        ds = ds.subset
+    while hasattr(ds, 'dataset'):
+        ds = ds.dataset
+
+    max_samples = 50
+
+    # Support WidarDataset, XRF55Dataset, and datatrcsie
+    if hasattr(ds, 'imgs'):
+        file_label_pairs = [(path, label) for path, label in ds.imgs]
+    elif hasattr(ds, 'img_paths') and hasattr(ds, 'img_labels'):
+        file_label_pairs = list(zip(ds.img_paths, ds.img_labels))
+    else:
+        print('  WARNING: Dataset has no file list attribute, skipping direction detection')
+        return {}
+
+    # Group by class
+    class_files = defaultdict(list)
+    for path, label in file_label_pairs:
+        class_files[label].append(path)
+
+    def _img_to_feat(img_arr):
+        """Flatten resized grayscale image to feature vector."""
+        gray = img_arr.mean(axis=2).astype(np.float64)
+        return gray.reshape(-1)
+
+    class_ratios = {}
+    for label, files in sorted(class_files.items()):
+        sampled = files[:max_samples]
+        orig_feats = []
+        flip_feats = []
+        for fpath in sampled:
+            img = np.array(Image.open(fpath).resize((64, 64)))  # downsample for speed
+            flipped = img[::-1, :, :].copy()  # freq-axis (vertical) flip
+            orig_feats.append(_img_to_feat(img))
+            flip_feats.append(_img_to_feat(flipped))
+
+        orig_feats = np.stack(orig_feats)        # (N, D)
+        flip_feats = np.stack(flip_feats)         # (N, D)
+        combined = np.concatenate([orig_feats, flip_feats], axis=0)  # (2N, D)
+
+        # Diversity = trace of covariance matrix
+        div_orig = np.trace(np.cov(orig_feats, rowvar=False)) + 1e-8
+        div_combined = np.trace(np.cov(combined, rowvar=False)) + 1e-8
+        ratio = div_combined / div_orig
+
+        class_ratios[label] = ratio
+        print(f'  Class {label}: diversity_ratio={ratio:.4f} (n={len(sampled)})')
+
+    # Normalize to [0, 1] -> probabilistic weight w_c
+    all_ratios = list(class_ratios.values())
+    r_min = min(all_ratios)
+    r_max = max(all_ratios)
+    r_range = r_max - r_min if r_max > r_min else 1.0
+
+    direction_weights = {}
+    for label, r in class_ratios.items():
+        direction_weights[label] = (r - r_min) / r_range
+
+    print(f'  Diversity ratio range: [{r_min:.4f}, {r_max:.4f}]')
+    for label in sorted(direction_weights.keys()):
+        w = direction_weights[label]
+        tag = 'sensitive' if w > 0.5 else 'agnostic'
+        print(f'  Class {label}: w_c={w:.4f} ({tag})')
+
+    return direction_weights
 
 
 def print_row(row, colwidth=10, latex=False):
@@ -285,23 +384,43 @@ def trainer(trainmodel, img_transform, img_transformte, device, opta, scheduler,
         # 源域评估集（无增强，确定性评估）
         dataset_source_eval = build_widar_source_eval(args, img_transformte)
     else:
-        # 原有 XRF55 逻辑
-        train_list = args.data_path if (args and args.data_path) else \
+        # XRF55 逻辑 — 支持 in_domain, cross_user, cross_env
+        data_path = args.data_path if (args and args.data_path) else \
             r'C:\Users\G\Downloads\GesFiCode-main-v2\GesFiCode-main\Processed_Data'
-        dataset_source = datatrcsie(
-            data_list=train_list,
-            transform=img_transform
-        )
-        test_list = train_list
-        dataset_target = datatecsie(
-            data_list=test_list,
-            transform=img_transformte
-        )
-        # XRF55 源域评估集
-        dataset_source_eval = datatrcsie(
-            data_list=train_list,
-            transform=img_transformte
-        )
+        experiment = args.experiment if args else 'cross_user'
+
+        if experiment == 'cross_env':
+            # 留一法: 指定 test_scene, 其余作为训练集
+            test_scene = int(args.test_scene) if (args and args.test_scene) else 4
+            all_scenes = [1, 2, 3, 4]
+            train_scenes = [s for s in all_scenes if s != test_scene]
+            base_dir = os.path.dirname(data_path) if 'Scene' in data_path else data_path
+            train_dirs = [os.path.join(base_dir, f'Processed_Data_Scene_{s}') for s in train_scenes]
+            test_dirs = [os.path.join(base_dir, f'Processed_Data_Scene_{test_scene}')]
+            print(f'[XRF55 cross_env] Train scenes: {train_scenes}, Test scene: {test_scene}')
+            dataset_source = XRF55Dataset(train_dirs, transform=img_transform)
+            dataset_target = XRF55Dataset(test_dirs, transform=img_transformte)
+            dataset_source_eval = XRF55Dataset(train_dirs, transform=img_transformte)
+        elif experiment == 'in_domain':
+            # Scene1 内随机 80/20 划分
+            scene1_dir = data_path if 'Scene' in data_path else os.path.join(data_path, 'Processed_Data_Scene_1')
+            full_ds = XRF55Dataset([scene1_dir], transform=None)
+            total = len(full_ds)
+            train_size = int(0.8 * total)
+            test_size = total - train_size
+            generator = torch.Generator().manual_seed(42)
+            train_sub, test_sub = torch.utils.data.random_split(full_ds, [train_size, test_size], generator=generator)
+            dataset_source = TransformSubset(train_sub, img_transform)
+            dataset_target = TransformSubset(test_sub, img_transformte)
+            dataset_source_eval = TransformSubset(train_sub, img_transformte)
+        else:
+            # cross_user: Scene1, U01-24 train, U25-30 test
+            scene1_dir = data_path if 'Scene' in data_path else os.path.join(data_path, 'Processed_Data_Scene_1')
+            train_users = set(range(1, 25))
+            test_users = set(range(25, 31))
+            dataset_source = XRF55Dataset([scene1_dir], transform=img_transform, allowed_users=train_users)
+            dataset_target = XRF55Dataset([scene1_dir], transform=img_transformte, allowed_users=test_users)
+            dataset_source_eval = XRF55Dataset([scene1_dir], transform=img_transformte, allowed_users=train_users)
 
     batch_size = args.batch_size if args else 32
 
@@ -348,6 +467,9 @@ def trainer(trainmodel, img_transform, img_transformte, device, opta, scheduler,
     print(f'Train set size: {len(dataset_source)} samples, {lengthtr} batches')
     print(f'Test set size:  {len(dataset_target)} samples, {lengthte} batches')
     print(f'Source eval size: {len(dataset_source_eval)} samples')
+
+    # ── Direction sensitivity auto-detection ──────────────────────────────
+    direction_sensitive = compute_flip_sensitivity(dataset_source, args)
 
     # ── 物理增强实例化 ────────────────────────────────────────────────────────
     var_pct = args.variance_percentile if args else 30
@@ -465,13 +587,23 @@ def trainer(trainmodel, img_transform, img_transformte, device, opta, scheduler,
                         if use_hardnce:
                             x_raw = inputs.cuda().float()
                             x_mirrored = freq_flip(x_raw)
+                            # Build per-sample direction mask from pre-computed sensitivity
+                            if direction_sensitive:
+                                dir_mask = torch.tensor(
+                                    [direction_sensitive.get(l.item(), 0.0) for l in labels],
+                                    dtype=torch.float32, device=x_raw.device
+                                )
+                            else:
+                                dir_mask = None
                         else:
                             x_mirrored = None
+                            dir_mask = None
 
                         step_vals = trainmodel.update(
                             inputs, labels, pdlables, opta, Cpd,
                             x_mirrored=x_mirrored,
-                            skip_grl=skip_grl_s3
+                            skip_grl=skip_grl_s3,
+                            direction_mask=dir_mask
                         )
                     print_row([step] + [step_vals.get(item, 0) for item in loss_list], colwidth=15)
 

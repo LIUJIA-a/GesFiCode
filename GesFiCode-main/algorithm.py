@@ -54,6 +54,7 @@ class GeneFi(Algorithm):
 
         # ── GRL alpha 记录（用于动态调度）──────────────────────────────────
         self._round = 0
+        self._ls = getattr(args, 'label_smoothing', 0.0)
 
     # ══════════════════════════════════════════════════════════════════════
     # M0 Baseline: 纯 ResNet18 + CE Loss（使用 Stage③ 的 bottleneck+classifier）
@@ -63,7 +64,7 @@ class GeneFi(Algorithm):
         all_x = inputs.cuda().float()
         all_y = labels.cuda().long()
         all_z = self.bottleneck(self.featurizer(all_x))
-        cls_loss = F.cross_entropy(self.classifier(all_z), all_y)
+        cls_loss = F.cross_entropy(self.classifier(all_z), all_y, label_smoothing=self._ls)
         opt.zero_grad()
         cls_loss.backward()
         opt.step()
@@ -82,7 +83,7 @@ class GeneFi(Algorithm):
         all_x = inputs.cuda().float()
         all_y = labels.cuda().long()
         all_z = self.abottleneck(self.featurizer(all_x))
-        cls_loss = F.cross_entropy(self.aclassifier(all_z), all_y)
+        cls_loss = F.cross_entropy(self.aclassifier(all_z), all_y, label_smoothing=self._ls)
 
         if x_view1 is not None and x_view2 is not None:
             f1 = self.abottleneck(self.featurizer(x_view1.cuda().float()))
@@ -228,7 +229,7 @@ class GeneFi(Algorithm):
     # ══════════════════════════════════════════════════════════════════════
     # 阶段③: Domain-invariant & Hard Negative Contrastive Learning
     # ══════════════════════════════════════════════════════════════════════
-    def update(self, inputs, labels, pdlables, opt, Cpd, x_mirrored=None, skip_grl=False):
+    def update(self, inputs, labels, pdlables, opt, Cpd, x_mirrored=None, skip_grl=False, direction_mask=None):
         """
         阶段③训练逻辑：
         - 基础手势分类损失
@@ -242,7 +243,7 @@ class GeneFi(Algorithm):
         all_z = self.bottleneck(self.featurizer(all_x))
 
         # ① 分类损失（主导信号）
-        cls_loss = F.cross_entropy(self.classifier(all_z), all_y)
+        cls_loss = F.cross_entropy(self.classifier(all_z), all_y, label_smoothing=self._ls)
 
         # ② GRL 域对齐损失（M3 消融时跳过）
         if not skip_grl:
@@ -264,7 +265,7 @@ class GeneFi(Algorithm):
         if x_mirrored is not None:
             x_mir = x_mirrored.cuda().float()
             feat_mir = self.bottleneck(self.featurizer(x_mir))
-            hard_loss = self.hardnce_loss(all_z, feat_mir)
+            hard_loss = self.hardnce_loss(all_z, feat_mir, direction_mask=direction_mask)
             total_loss = cls_loss + disc_loss + self.args.beta * hard_loss
             loss_dict = {'total': total_loss.item(), 'cls': cls_loss.item(),
                          'dis': disc_loss.item(), 'hard': hard_loss.item()}

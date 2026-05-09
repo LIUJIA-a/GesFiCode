@@ -12,9 +12,13 @@ import torchvision.transforms as transforms
 # 支持通过 allowed_* 参数灵活过滤，动态构建从 0 开始的连续标签映射
 # ═══════════════════════════════════════════════════════════════════════════
 
-# Widar 文件名正则：匹配 E1_U05_G01_L1_O1_R01.png 或 RX1_E1_U05_G01_L1_O1_R01.png
+# Widar 文件名正则：匹配 E1_U05_G01_L1_O1_R01.png 或 E1_U05_G01_L1_O1_R01_3AP.png 格式 (6AP/3AP)
 _WIDAR_PATTERN = re.compile(
-    r'^(?:(RX\d+)_)?(E\d+)_(U\d+)_(G\d+)_(L\d+)_(O\d+)_(R\d+)(?:_3AP)?\.png$'
+    r'^(E\d+)_(U\d+)_(G\d+)_(L\d+)_(O\d+)_(R\d+)(?:_3AP)?\.png$'
+)
+# Widar 1AP 格式：匹配 RX1_E1_U05_G01_L1_O1_R01.png
+_WIDAR_1AP_PATTERN = re.compile(
+    r'^(RX\d+)_(E\d+)_(U\d+)_(G\d+)_(L\d+)_(O\d+)_(R\d+)\.png$'
 )
 
 
@@ -46,7 +50,7 @@ class WidarDataset(data.Dataset):
     def __init__(self, data_dir, transform=None,
                  allowed_envs=None, allowed_users=None,
                  allowed_gestures=None, allowed_locs=None,
-                 allowed_oris=None, gesture_map=None, allowed_rx=None):
+                 allowed_oris=None, allowed_rxs=None, gesture_map=None):
         self.transform = transform
         self.img_paths = []
         self.img_labels = []
@@ -58,7 +62,7 @@ class WidarDataset(data.Dataset):
         gest_set = set(allowed_gestures) if allowed_gestures else None
         loc_set = set(allowed_locs) if allowed_locs else None
         ori_set = set(allowed_oris) if allowed_oris else None
-        rx_set = set(allowed_rx) if allowed_rx else None
+        rx_set = set(allowed_rxs) if allowed_rxs else None
 
         # ── 第一遍扫描：收集有效文件，提取 gesture ID 集合 ─────────────────
         valid_files = []          # [(filepath, gesture_str), ...]
@@ -66,16 +70,21 @@ class WidarDataset(data.Dataset):
 
         all_files = [f for f in os.listdir(data_dir) if f.endswith('.png')]
         for f in all_files:
+            # 尝试匹配 6AP 格式
             m = _WIDAR_PATTERN.match(f)
-            if m is None:
-                continue
-            rx, env, user, gesture, loc, ori, rep = m.groups()
-
-            # RX 过滤
-            if rx_set and (rx is None or rx not in rx_set):
-                continue
+            if m is not None:
+                env, user, gesture, loc, ori, rep = m.groups()
+                rx = None
+            else:
+                # 尝试匹配 1AP 格式
+                m = _WIDAR_1AP_PATTERN.match(f)
+                if m is None:
+                    continue
+                rx, env, user, gesture, loc, ori, rep = m.groups()
 
             # 逐维度过滤
+            if rx_set and (rx is None or rx not in rx_set):
+                continue
             if env_set and env not in env_set:
                 continue
             if user_set and user not in user_set:
@@ -220,6 +229,72 @@ class datatrcsie(data.Dataset):
             pdlabels = int(pdlabels)
 
         return inputs, labels, pdlabels, item
+
+    def __len__(self):
+        return self.n_data
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# XRF55 通用数据集构建器 (支持 cross_env 留一法)
+# ═══════════════════════════════════════════════════════════════════════════
+
+_XRF55_PATTERN = re.compile(r'^U(\d+)_G(\d+)_R(\d+)\.png$')
+XRF55_TARGET_GESTURES = [44, 45, 46, 47, 48, 49, 50, 51]
+
+
+class XRF55Dataset(data.Dataset):
+    """XRF55 通用数据集，支持灵活过滤"""
+
+    def __init__(self, data_dirs, transform=None,
+                 allowed_users=None, allowed_gestures=None):
+        """
+        data_dirs: list of directories to scan
+        allowed_users: set of user IDs (int) to include, or None for all
+        allowed_gestures: list of gesture IDs (int), default XRF55_TARGET_GESTURES
+        """
+        self.transform = transform
+        self.img_paths = []
+        self.img_labels = []
+        self.pdlabels = []
+
+        if allowed_gestures is None:
+            allowed_gestures = XRF55_TARGET_GESTURES
+        gest_set = set(allowed_gestures)
+        user_set = set(allowed_users) if allowed_users else None
+
+        for data_dir in data_dirs:
+            for f in os.listdir(data_dir):
+                m = _XRF55_PATTERN.match(f)
+                if m is None:
+                    continue
+                user_id = int(m.group(1))
+                gesture_id = int(m.group(2))
+                if gesture_id not in gest_set:
+                    continue
+                if user_set and user_id not in user_set:
+                    continue
+                self.img_paths.append(os.path.join(data_dir, f))
+                self.img_labels.append(gesture_id - 44)
+                self.pdlabels.append(0)
+
+        self.n_data = len(self.img_paths)
+        print(f'[XRF55Dataset] loaded {self.n_data} samples from {len(data_dirs)} dirs')
+
+    def set_labels_by_index(self, tlabels=None, tindex=None, label_type='domain_label'):
+        if label_type == 'pdlabel':
+            self.pdlabels = np.array(self.pdlabels)
+            self.pdlabels[tindex.astype(int)] = tlabels.astype(int)
+            self.pdlabels = self.pdlabels.tolist()
+
+    def __getitem__(self, item):
+        img_path = self.img_paths[item]
+        label = int(self.img_labels[item])
+        pdlabel = int(self.pdlabels[item])
+        img = Image.open(img_path)
+        img = img.resize((224, 224))
+        if self.transform is not None:
+            img = self.transform(img)
+        return img, label, pdlabel, item
 
     def __len__(self):
         return self.n_data

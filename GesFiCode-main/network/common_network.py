@@ -19,6 +19,7 @@ class feat_bottleneck(nn.Module):
         x = self.bottleneck(x)
         if self.type == "bn":
             x = self.bn(x)
+        x = self.dropout(x)
         return x
 
 

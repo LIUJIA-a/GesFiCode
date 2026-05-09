@@ -95,6 +95,14 @@ def get_args():
                         help="receiver filter, e.g. RX2 for single receiver")
     parser.add_argument('--data_fraction', type=float, default=1.0,
                         help="fraction of training data to use (0-1)")
+    parser.add_argument('--direction_k', type=float, default=1.0,
+                        help="Direction sensitivity threshold: k in tau = mean - k*std. "
+                             "Higher k = fewer classes marked as direction-sensitive. "
+                             "Set very high (e.g. 99) to disable direction detection entirely.")
+    parser.add_argument('--test_scene', type=str, default='',
+                        help="XRF55 cross_env 留一法: 指定测试场景编号如 1,2,3,4")
+    parser.add_argument('--label_smoothing', type=float, default=0.0,
+                        help="Label smoothing factor for CE loss (0=off, 0.1=typical)")
     args = parser.parse_args()
     args = act_param_init(args)
     return args
@@ -110,6 +118,8 @@ global_train_acc = []
 global_test_acc = []
 img_transform = transforms.Compose([
         transforms.RandomGrayscale(p=0.2),
+        transforms.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.2),
+        transforms.RandomHorizontalFlip(p=0.3),
         transforms.RandomApply([transforms.RandomCrop(224, padding=(32,0),padding_mode='reflect')],p=0.2),
         mytransforms.RandomSpi(p=0.2),
         mytransforms.RandomComPre(p=0.2),

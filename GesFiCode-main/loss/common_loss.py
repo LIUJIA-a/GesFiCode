@@ -91,34 +91,48 @@ class ProtoNCELoss(torch.nn.Module):
 # ── Mirror Hard Negative InfoNCE ─────────────────────────────────────────────
 class InfoNCE_HardNegative(torch.nn.Module):
     """
-    镜像困难负样本对比损失（Widar3.0 专用）：
-    - 正样本对：同一 batch 内 sample_i 的原始频谱特征与其频轴翻转版本（feat_mirrored[i]）。
-      它们来自同一手势，理应在特征空间中高度相似，损失应把它们拉近。
-    - 困难负样本：同一 batch 内的其他样本（feat_orig[j], j≠i）。
+    Direction-aware mirror contrastive loss with probabilistic weights.
 
-    标准 InfoNCE（L_i ≥ 0 恒成立）：
-    L_i = -log exp(sim(z_i, z_i^mir)/τ) / ∑_{k} exp(sim(z_i, z_k^mir)/τ)
+    Uses continuous direction_weights w_c ∈ [0, 1] per sample:
+    - w_c ≈ 0 (direction-agnostic): flip = positive pair → pull close (InfoNCE)
+    - w_c ≈ 1 (direction-sensitive): flip = hard negative → push away
+    - 0 < w_c < 1: interpolation between the two behaviors
 
-    注意：这里的"推远"是指通过拉近正样本对而间接实现的——拉近了正确对，
-    相对上就等于推开了错误对。
+    Final loss per sample = (1 - w) * L_pull + w * L_push
+    where L_pull = -pos_sim + log(denom)  (standard InfoNCE, pull flip close)
+          L_push = pos_sim                 (penalize similarity, push flip away)
+
+    If direction_weights is None, all samples use L_pull (backward compatible).
     """
     def __init__(self, temperature=0.07):
         super().__init__()
         self.tau = temperature
 
-    def forward(self, feat_orig, feat_mirrored):
+    def forward(self, feat_orig, feat_mirrored, direction_mask=None):
         """
-        feat_orig:     (B, D)      原始频谱特征
-        feat_mirrored: (B, D)      频轴翻转后特征
-        返回非负标量损失。
+        feat_orig:       (B, D)  original spectrogram features
+        feat_mirrored:   (B, D)  frequency-axis flipped features
+        direction_mask:  (B,) float tensor [0,1] or None
+                         0.0 = agnostic (pull flip close)
+                         1.0 = sensitive (push flip away)
         """
-        z1 = F.normalize(feat_orig, dim=1)      # (B, D)
-        z2 = F.normalize(feat_mirrored, dim=1)  # (B, D)
+        z1 = F.normalize(feat_orig, dim=1)
+        z2 = F.normalize(feat_mirrored, dim=1)
+        B = z1.size(0)
 
-        # cross-similarity：每行 i 是 z1[i] 与所有 z2[k] 的相似度
         sim_cross = torch.matmul(z1, z2.T) / self.tau  # (B, B)
-        # 对角线 z1[i] · z2[i] 是正样本对；其余 z1[i] · z2[k≠i] 是 batch 内困难负样本
-        pos_sim = torch.diag(sim_cross)                        # (B,)
-        denominator = torch.exp(sim_cross).sum(dim=1)          # (B,)
-        loss = -pos_sim + torch.log(denominator + 1e-8)       # 等价于 -log(pos / den)
+        pos_sim = torch.diag(sim_cross)                 # (B,)
+        denominator = torch.exp(sim_cross).sum(dim=1)   # (B,)
+
+        # L_pull: standard InfoNCE (pull flip close)
+        loss_pull = -pos_sim + torch.log(denominator + 1e-8)
+        # L_push: penalize high similarity (push flip away)
+        loss_push = pos_sim
+
+        if direction_mask is None:
+            return loss_pull.mean()
+
+        # Weighted interpolation: (1-w)*L_pull + w*L_push
+        w = direction_mask.float()
+        loss = (1.0 - w) * loss_pull + w * loss_push
         return loss.mean()
