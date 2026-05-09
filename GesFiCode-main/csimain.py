@@ -74,12 +74,25 @@ def get_args():
                         choices=['in_domain', 'cross_user', 'cross_env',
                                  'cross_loc', 'cross_ori'],
                         help="实验类型 (仅 widar 生效)")
+    parser.add_argument('--rx', type=str, default='',
+                        help="天线选择，如 RX1, RX2,...,RX6 (仅 1AP 数据集生效，空=不过滤)")
+    parser.add_argument('--test_env', type=str, default='',
+                        help="cross_env 留一法: 指定测试环境 E1/E2/E3")
+    parser.add_argument('--test_loc', type=str, default='',
+                        help="cross_loc 留一法: 指定测试位置 L1-L5")
+    parser.add_argument('--test_ori', type=str, default='',
+                        help="cross_ori 留一法: 指定测试方向 O1-O5")
 
     # ── 消融实验模式 ────────────────────────────────────────────────────────
     parser.add_argument('--ablation', type=str, default='full',
-                        choices=['M0', 'M1', 'M2', 'M3', 'M4', 'full'],
+                        choices=['M0', 'M1', 'M2', 'M3', 'M4', 'M12', 'full'],
                         help="消融实验模式: M0=Baseline CE, M1=w/o SupCon, "
-                             "M2=w/o PCL, M3=w/o GRL, M4=w/o HardNCE, full=完整模型")
+                             "M2=w/o PCL, M3=w/o GRL, M4=w/o HardNCE, "
+                             "M12=Stage1 only (SupCon+mask, no Stage2/HardNCE), full=完整模型")
+    parser.add_argument('--data_fraction', type=float, default=1.0,
+                        help="训练集采样比例 (0,1], 用于数据缩减实验")
+    parser.add_argument('--test_scene', type=str, default='',
+                        help="XRF55 cross_env 留一法: 指定测试场景编号如 1,2,3,4")
 
     parser.add_argument('--local_epoch', type=int,
                         default=1, help='local iterations')
@@ -89,12 +102,6 @@ def get_args():
     parser.add_argument('--weight_decay', type=float, default=5e-4)
     parser.add_argument('--exp_id', type=str, default='exp_1',
                         help="experiment identifier, used to create unique log directory")
-    parser.add_argument('--train_envs', type=str, default=None,
-                        help="comma-separated train envs for leave-one-out, e.g. E1,E2")
-    parser.add_argument('--rx', type=str, default=None,
-                        help="receiver filter, e.g. RX2 for single receiver")
-    parser.add_argument('--data_fraction', type=float, default=1.0,
-                        help="fraction of training data to use (0-1)")
     args = parser.parse_args()
     args = act_param_init(args)
     return args
@@ -115,10 +122,12 @@ img_transform = transforms.Compose([
         mytransforms.RandomComPre(p=0.2),
         transforms.Resize([224, 224]),
         transforms.ToTensor(),
+        mytransforms.InstanceNormTransform(),
     ])
 img_transformte = transforms.Compose([
         transforms.Resize([224, 224]),
         transforms.ToTensor(),
+        mytransforms.InstanceNormTransform(),
     ])
 
 if __name__ == '__main__':
