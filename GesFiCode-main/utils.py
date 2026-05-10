@@ -10,7 +10,6 @@ from torchvision.transforms import functional as F1
 from sklearn.metrics import confusion_matrix
 from algorithm import *
 from dataloader import *
-from dataloader import XRF55Dataset, XRF55_TARGET_GESTURES
 from mytransforms import Physical_Mask_Augment, Frequency_Axis_Flip
 
 
@@ -88,14 +87,16 @@ def build_widar_loaders(args, img_transform, img_transformte):
     """
     data_dir = args.data_path
     gmap = WIDAR_GESTURE_MAP
-    rx_filter = [args.rx] if (hasattr(args, 'rx') and args.rx) else None
+    rx_filter = [args.rx] if getattr(args, 'rx', None) else None
 
     if args.experiment == 'in_domain':
+        # 全量数据，transform=None（稍后通过 TransformSubset 分别包装）
         full_dataset = WidarDataset(
             data_dir, transform=None,
             allowed_gestures=WIDAR_GESTURES,
-            allowed_rxs=rx_filter, gesture_map=gmap
+            gesture_map=gmap, allowed_rx=rx_filter
         )
+        # 80/20 随机划分（固定种子保证可复现）
         total = len(full_dataset)
         train_size = int(0.8 * total)
         test_size = total - train_size
@@ -107,65 +108,78 @@ def build_widar_loaders(args, img_transform, img_transformte):
         dataset_target = TransformSubset(test_subset, img_transformte)
 
     elif args.experiment == 'cross_user':
+        # E1 内，按用户划分
         train_users = ['U05', 'U10', 'U11', 'U12', 'U13', 'U14', 'U15']
         test_users = ['U16', 'U17']
         dataset_source = WidarDataset(
             data_dir, transform=img_transform,
             allowed_envs=['E1'], allowed_users=train_users,
-            allowed_gestures=WIDAR_GESTURES, allowed_rxs=rx_filter, gesture_map=gmap
+            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap, allowed_rx=rx_filter
         )
         dataset_target = WidarDataset(
             data_dir, transform=img_transformte,
             allowed_envs=['E1'], allowed_users=test_users,
-            allowed_gestures=WIDAR_GESTURES, allowed_rxs=rx_filter, gesture_map=gmap
+            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap, allowed_rx=rx_filter
         )
 
     elif args.experiment == 'cross_env':
-        all_envs = ['E1', 'E2', 'E3']
-        test_env = args.test_env if (hasattr(args, 'test_env') and args.test_env) else 'E3'
-        train_envs = [e for e in all_envs if e != test_env]
-        print(f'[cross_env] Train: {train_envs}, Test: {test_env}')
+        # 支持 leave-one-out: --train_envs E1,E2 则测试剩余环境
+        if getattr(args, 'train_envs', None):
+            train_envs = [e.strip() for e in args.train_envs.split(',')]
+            all_envs = ['E1', 'E2', 'E3']
+            test_envs = [e for e in all_envs if e not in train_envs]
+        else:
+            train_envs = ['E1', 'E2']
+            test_envs = ['E3']
         dataset_source = WidarDataset(
             data_dir, transform=img_transform,
             allowed_envs=train_envs,
-            allowed_gestures=WIDAR_GESTURES, allowed_rxs=rx_filter, gesture_map=gmap
+            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap, allowed_rx=rx_filter
         )
         dataset_target = WidarDataset(
             data_dir, transform=img_transformte,
-            allowed_envs=[test_env],
-            allowed_gestures=WIDAR_GESTURES, allowed_rxs=rx_filter, gesture_map=gmap
+            allowed_envs=test_envs,
+            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap, allowed_rx=rx_filter
         )
 
     elif args.experiment == 'cross_loc':
-        all_locs = ['L1', 'L2', 'L3', 'L4', 'L5']
-        test_loc = args.test_loc if (hasattr(args, 'test_loc') and args.test_loc) else 'L5'
-        train_locs = [l for l in all_locs if l != test_loc]
-        print(f'[cross_loc] Train: {train_locs}, Test: {test_loc}')
+        # 支持 leave-one-out: --train_envs L1,L2,L3,L4
+        if getattr(args, 'train_envs', None):
+            train_locs = [e.strip() for e in args.train_envs.split(',')]
+            all_locs = ['L1', 'L2', 'L3', 'L4', 'L5']
+            test_locs = [e for e in all_locs if e not in train_locs]
+        else:
+            train_locs = ['L1', 'L2', 'L3', 'L4']
+            test_locs = ['L5']
         dataset_source = WidarDataset(
             data_dir, transform=img_transform,
             allowed_envs=['E1'], allowed_locs=train_locs,
-            allowed_gestures=WIDAR_GESTURES, allowed_rxs=rx_filter, gesture_map=gmap
+            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap, allowed_rx=rx_filter
         )
         dataset_target = WidarDataset(
             data_dir, transform=img_transformte,
-            allowed_envs=['E1'], allowed_locs=[test_loc],
-            allowed_gestures=WIDAR_GESTURES, allowed_rxs=rx_filter, gesture_map=gmap
+            allowed_envs=['E1'], allowed_locs=test_locs,
+            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap, allowed_rx=rx_filter
         )
 
     elif args.experiment == 'cross_ori':
-        all_oris = ['O1', 'O2', 'O3', 'O4', 'O5']
-        test_ori = args.test_ori if (hasattr(args, 'test_ori') and args.test_ori) else 'O5'
-        train_oris = [o for o in all_oris if o != test_ori]
-        print(f'[cross_ori] Train: {train_oris}, Test: {test_ori}')
+        # 支持 leave-one-out: --train_envs O1,O2,O3,O4
+        if getattr(args, 'train_envs', None):
+            train_oris = [e.strip() for e in args.train_envs.split(',')]
+            all_oris = ['O1', 'O2', 'O3', 'O4', 'O5']
+            test_oris = [e for e in all_oris if e not in train_oris]
+        else:
+            train_oris = ['O1', 'O2', 'O3', 'O4']
+            test_oris = ['O5']
         dataset_source = WidarDataset(
             data_dir, transform=img_transform,
             allowed_envs=['E1'], allowed_oris=train_oris,
-            allowed_gestures=WIDAR_GESTURES, allowed_rxs=rx_filter, gesture_map=gmap
+            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap, allowed_rx=rx_filter
         )
         dataset_target = WidarDataset(
             data_dir, transform=img_transformte,
-            allowed_envs=['E1'], allowed_oris=[test_ori],
-            allowed_gestures=WIDAR_GESTURES, allowed_rxs=rx_filter, gesture_map=gmap
+            allowed_envs=['E1'], allowed_oris=test_oris,
+            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap, allowed_rx=rx_filter
         )
     else:
         raise ValueError(f"Unknown experiment type: {args.experiment}")
@@ -180,13 +194,13 @@ def build_widar_source_eval(args, img_transformte):
     """
     data_dir = args.data_path
     gmap = WIDAR_GESTURE_MAP
-    rx_filter = [args.rx] if (hasattr(args, 'rx') and args.rx) else None
+    rx_filter = [args.rx] if getattr(args, 'rx', None) else None
 
     if args.experiment == 'in_domain':
         full_dataset = WidarDataset(
             data_dir, transform=None,
             allowed_gestures=WIDAR_GESTURES,
-            allowed_rxs=rx_filter, gesture_map=gmap
+            gesture_map=gmap, allowed_rx=rx_filter
         )
         total = len(full_dataset)
         train_size = int(0.8 * total)
@@ -202,37 +216,40 @@ def build_widar_source_eval(args, img_transformte):
         return WidarDataset(
             data_dir, transform=img_transformte,
             allowed_envs=['E1'], allowed_users=train_users,
-            allowed_gestures=WIDAR_GESTURES, allowed_rxs=rx_filter, gesture_map=gmap
+            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap, allowed_rx=rx_filter
         )
 
     elif args.experiment == 'cross_env':
-        all_envs = ['E1', 'E2', 'E3']
-        test_env = args.test_env if (hasattr(args, 'test_env') and args.test_env) else 'E3'
-        train_envs = [e for e in all_envs if e != test_env]
+        if getattr(args, 'train_envs', None):
+            train_envs = [e.strip() for e in args.train_envs.split(',')]
+        else:
+            train_envs = ['E1', 'E2']
         return WidarDataset(
             data_dir, transform=img_transformte,
             allowed_envs=train_envs,
-            allowed_gestures=WIDAR_GESTURES, allowed_rxs=rx_filter, gesture_map=gmap
+            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap, allowed_rx=rx_filter
         )
 
     elif args.experiment == 'cross_loc':
-        all_locs = ['L1', 'L2', 'L3', 'L4', 'L5']
-        test_loc = args.test_loc if (hasattr(args, 'test_loc') and args.test_loc) else 'L5'
-        train_locs = [l for l in all_locs if l != test_loc]
+        if getattr(args, 'train_envs', None):
+            train_locs = [e.strip() for e in args.train_envs.split(',')]
+        else:
+            train_locs = ['L1', 'L2', 'L3', 'L4']
         return WidarDataset(
             data_dir, transform=img_transformte,
             allowed_envs=['E1'], allowed_locs=train_locs,
-            allowed_gestures=WIDAR_GESTURES, allowed_rxs=rx_filter, gesture_map=gmap
+            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap, allowed_rx=rx_filter
         )
 
     elif args.experiment == 'cross_ori':
-        all_oris = ['O1', 'O2', 'O3', 'O4', 'O5']
-        test_ori = args.test_ori if (hasattr(args, 'test_ori') and args.test_ori) else 'O5'
-        train_oris = [o for o in all_oris if o != test_ori]
+        if getattr(args, 'train_envs', None):
+            train_oris = [e.strip() for e in args.train_envs.split(',')]
+        else:
+            train_oris = ['O1', 'O2', 'O3', 'O4']
         return WidarDataset(
             data_dir, transform=img_transformte,
             allowed_envs=['E1'], allowed_oris=train_oris,
-            allowed_gestures=WIDAR_GESTURES, allowed_rxs=rx_filter, gesture_map=gmap
+            allowed_gestures=WIDAR_GESTURES, gesture_map=gmap, allowed_rx=rx_filter
         )
     else:
         raise ValueError(f"Unknown experiment type: {args.experiment}")
@@ -268,43 +285,23 @@ def trainer(trainmodel, img_transform, img_transformte, device, opta, scheduler,
         # 源域评估集（无增强，确定性评估）
         dataset_source_eval = build_widar_source_eval(args, img_transformte)
     else:
-        # XRF55 逻辑 — 支持 in_domain, cross_user, cross_env
-        data_path = args.data_path if (args and args.data_path) else \
+        # 原有 XRF55 逻辑
+        train_list = args.data_path if (args and args.data_path) else \
             r'C:\Users\G\Downloads\GesFiCode-main-v2\GesFiCode-main\Processed_Data'
-        experiment = args.experiment if args else 'cross_user'
-
-        if experiment == 'cross_env':
-            # 留一法: 指定 test_scene, 其余作为训练集
-            test_scene = int(args.test_scene) if (args and args.test_scene) else 4
-            all_scenes = [1, 2, 3, 4]
-            train_scenes = [s for s in all_scenes if s != test_scene]
-            base_dir = os.path.dirname(data_path) if 'Scene' in data_path else data_path
-            train_dirs = [os.path.join(base_dir, f'Processed_Data_Scene_{s}') for s in train_scenes]
-            test_dirs = [os.path.join(base_dir, f'Processed_Data_Scene_{test_scene}')]
-            print(f'[XRF55 cross_env] Train scenes: {train_scenes}, Test scene: {test_scene}')
-            dataset_source = XRF55Dataset(train_dirs, transform=img_transform)
-            dataset_target = XRF55Dataset(test_dirs, transform=img_transformte)
-            dataset_source_eval = XRF55Dataset(train_dirs, transform=img_transformte)
-        elif experiment == 'in_domain':
-            # Scene1 内随机 80/20 划分
-            scene1_dir = data_path if 'Scene' in data_path else os.path.join(data_path, 'Processed_Data_Scene_1')
-            full_ds = XRF55Dataset([scene1_dir], transform=None)
-            total = len(full_ds)
-            train_size = int(0.8 * total)
-            test_size = total - train_size
-            generator = torch.Generator().manual_seed(42)
-            train_sub, test_sub = torch.utils.data.random_split(full_ds, [train_size, test_size], generator=generator)
-            dataset_source = TransformSubset(train_sub, img_transform)
-            dataset_target = TransformSubset(test_sub, img_transformte)
-            dataset_source_eval = TransformSubset(train_sub, img_transformte)
-        else:
-            # cross_user: Scene1, U01-24 train, U25-30 test
-            scene1_dir = data_path if 'Scene' in data_path else os.path.join(data_path, 'Processed_Data_Scene_1')
-            train_users = set(range(1, 25))
-            test_users = set(range(25, 31))
-            dataset_source = XRF55Dataset([scene1_dir], transform=img_transform, allowed_users=train_users)
-            dataset_target = XRF55Dataset([scene1_dir], transform=img_transformte, allowed_users=test_users)
-            dataset_source_eval = XRF55Dataset([scene1_dir], transform=img_transformte, allowed_users=train_users)
+        dataset_source = datatrcsie(
+            data_list=train_list,
+            transform=img_transform
+        )
+        test_list = train_list
+        dataset_target = datatecsie(
+            data_list=test_list,
+            transform=img_transformte
+        )
+        # XRF55 源域评估集
+        dataset_source_eval = datatrcsie(
+            data_list=train_list,
+            transform=img_transformte
+        )
 
     batch_size = args.batch_size if args else 32
 
@@ -317,7 +314,6 @@ def trainer(trainmodel, img_transform, img_transformte, device, opta, scheduler,
         subset, _ = torch.utils.data.random_split(
             dataset_source, [n_keep, n_total - n_keep], generator=generator
         )
-        # 包装 Subset，代理 set_labels_by_index 到底层数据集
         class SubsetProxy(torch.utils.data.Dataset):
             def __init__(self, subset):
                 self.subset = subset
@@ -397,9 +393,6 @@ def trainer(trainmodel, img_transform, img_transformte, device, opta, scheduler,
 
                 # M1 消融：永远不传 SupCon 视图（包括前 3 个 epoch）
                 use_supcon = (ablation not in ('M1',))
-                # M12: Stage1 only (skip Stage2 + HardNCE, but keep SupCon)
-                skip_stage2 = (ablation in ('M2', 'M12'))
-                skip_hardnce = (ablation in ('M4', 'M12'))
 
                 if round <= 2 and use_supcon:
                     loss_list = ['total', 'cls', 'supcon']
@@ -428,8 +421,8 @@ def trainer(trainmodel, img_transform, img_transformte, device, opta, scheduler,
                 # ══════════════════════════════════════════════════════════
                 # 阶段②: Latent Domain Characterization & PCL
                 # ══════════════════════════════════════════════════════════
-                # M2/M12 消融：跳过整个 Stage②，随机分配域标签
-                if skip_stage2:
+                # M2 消融：跳过整个 Stage②，随机分配域标签
+                if ablation == 'M2':
                     print('==== Stage 2: SKIPPED (M2 ablation) ====')
                     # 每个 epoch 重新随机分配域标签
                     K = args.latent_domain_num
@@ -456,7 +449,7 @@ def trainer(trainmodel, img_transform, img_transformte, device, opta, scheduler,
                 # 阶段③: Domain-invariant & Hard Negative Contrastive
                 # ══════════════════════════════════════════════════════════
                 skip_grl_s3 = (ablation == 'M3')
-                use_hardnce = (not skip_hardnce)
+                use_hardnce = (ablation not in ('M4',))
 
                 print('==== Stage 3: Domain-invariant + HardNCE ====')
                 if skip_grl_s3:
@@ -501,6 +494,64 @@ def trainer(trainmodel, img_transform, img_transformte, device, opta, scheduler,
 
     with open(bestacc_file, "w") as f:
         f.write(f"{bestac:.6f}\n")
+
+    # ── t-SNE Visualization ─────────────────────────────────────────────
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    from sklearn.manifold import TSNE
+
+    GESTURE_NAMES_WIDAR = ['Push&Pull', 'Sweep', 'Clap', 'Slide', 'Draw-O', 'Draw-Zigzag']
+    GESTURE_NAMES_XRF55 = ['Circle', 'Cross', 'Push', 'Pull',
+                           'SwipeLeft', 'SwipeRight', 'SwipeUp', 'SwipeDown']
+    gesture_names = GESTURE_NAMES_WIDAR if (args and args.dataset == 'widar') else GESTURE_NAMES_XRF55
+
+    trainmodel.eval()
+    all_feats, all_labels, all_domains = [], [], []
+    with torch.no_grad():
+        for inputs, labels, pdlables, item in train_loader:
+            x = inputs.cuda().float()
+            feat = trainmodel.bottleneck(trainmodel.featurizer(x))
+            all_feats.append(feat.cpu())
+            all_labels.append(labels)
+            all_domains.append(torch.zeros(len(labels)))
+        for inputs, labels, pdlables, item in test_loader:
+            x = inputs.cuda().float()
+            feat = trainmodel.bottleneck(trainmodel.featurizer(x))
+            all_feats.append(feat.cpu())
+            all_labels.append(labels)
+            all_domains.append(torch.ones(len(labels)))
+
+    all_feats = torch.cat(all_feats).numpy()
+    all_labels = torch.cat(all_labels).numpy()
+    all_domains = torch.cat(all_domains).numpy()
+
+    print(f'\n[t-SNE] Computing on {len(all_feats)} samples ...')
+    tsne = TSNE(n_components=2, perplexity=30, random_state=42, max_iter=1000)
+    embedded = tsne.fit_transform(all_feats)
+
+    colors = plt.cm.tab10(np.linspace(0, 1, num_classes))
+    markers = ['o', '^']  # train=circle, test=triangle
+    domain_labels = ['train', 'test']
+
+    fig, ax = plt.subplots(figsize=(10, 8))
+    for g in range(num_classes):
+        gname = gesture_names[g] if g < len(gesture_names) else f'G{g}'
+        for d in range(2):
+            mask = (all_labels == g) & (all_domains == d)
+            if mask.sum() == 0:
+                continue
+            ax.scatter(embedded[mask, 0], embedded[mask, 1],
+                       c=[colors[g]], marker=markers[d], s=15, alpha=0.6,
+                       label=f'{gname} ({domain_labels[d]})')
+    ax.legend(fontsize=7, ncol=2, markerscale=2)
+    ax.set_title('t-SNE: Train(○) vs Test(△), colored by gesture')
+    ax.set_xticks([])
+    ax.set_yticks([])
+    tsne_path = os.path.join(log_dir, 'tsne.png')
+    plt.savefig(tsne_path, dpi=150, bbox_inches='tight')
+    plt.close()
+    print(f'[t-SNE] Saved to {tsne_path}')
 
     print(f"\nResults saved to {log_dir}")
     print(f"acc.txt: {acc_file}")

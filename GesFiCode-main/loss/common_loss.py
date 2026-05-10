@@ -91,32 +91,34 @@ class ProtoNCELoss(torch.nn.Module):
 # ── Mirror Hard Negative InfoNCE ─────────────────────────────────────────────
 class InfoNCE_HardNegative(torch.nn.Module):
     """
-    方向解耦损失（Directional Decoupling Loss）：
-    通过最小化余弦相似度，强制原始特征与频域翻转（反向运动）特征在潜空间中
-    相互推远至正交，以锐化模型对运动方向（多普勒正负）的敏感度。
+    镜像困难负样本对比损失（Widar3.0 专用）：
+    - 正样本对：同一 batch 内 sample_i 的原始频谱特征与其频轴翻转版本（feat_mirrored[i]）。
+      它们来自同一手势，理应在特征空间中高度相似，损失应把它们拉近。
+    - 困难负样本：同一 batch 内的其他样本（feat_orig[j], j≠i）。
 
-    物理意义：频轴翻转等价于动作方向反转（Push↔Pull），该损失迫使模型
-    区分正向与反向运动，而非将它们视为同一手势。
+    标准 InfoNCE（L_i ≥ 0 恒成立）：
+    L_i = -log exp(sim(z_i, z_i^mir)/τ) / ∑_{k} exp(sim(z_i, z_k^mir)/τ)
 
-    注意：对于标签不区分方向的数据集（如 Widar 的 Push&Pull 合并类），
-    应通过 --beta 0.0 禁用此损失。
+    注意：这里的"推远"是指通过拉近正样本对而间接实现的——拉近了正确对，
+    相对上就等于推开了错误对。
     """
     def __init__(self, temperature=0.07):
         super().__init__()
-        self.tau = temperature  # 保留接口兼容，当前实现未使用 temperature
+        self.tau = temperature
 
     def forward(self, feat_orig, feat_mirrored):
         """
         feat_orig:     (B, D)      原始频谱特征
         feat_mirrored: (B, D)      频轴翻转后特征
-        返回非负标量损失。相似度为正时惩罚，推至正交（sim→0）后停止。
+        返回非负标量损失。
         """
         z1 = F.normalize(feat_orig, dim=1)      # (B, D)
         z2 = F.normalize(feat_mirrored, dim=1)  # (B, D)
 
-        # 逐样本余弦相似度
-        sim_hard_neg = torch.sum(z1 * z2, dim=1)  # (B,)
-
-        # ReLU margin: 只惩罚正相关性，推至正交即停止
-        loss = torch.mean(F.relu(sim_hard_neg))
-        return loss
+        # cross-similarity：每行 i 是 z1[i] 与所有 z2[k] 的相似度
+        sim_cross = torch.matmul(z1, z2.T) / self.tau  # (B, B)
+        # 对角线 z1[i] · z2[i] 是正样本对；其余 z1[i] · z2[k≠i] 是 batch 内困难负样本
+        pos_sim = torch.diag(sim_cross)                        # (B,)
+        denominator = torch.exp(sim_cross).sum(dim=1)          # (B,)
+        loss = -pos_sim + torch.log(denominator + 1e-8)       # 等价于 -log(pos / den)
+        return loss.mean()

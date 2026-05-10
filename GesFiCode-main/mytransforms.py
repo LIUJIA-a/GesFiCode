@@ -184,14 +184,3 @@ class Frequency_Axis_Flip(torch.nn.Module):
 
     def forward(self, x):
         return x.flip(2)  # 沿 H（频率）轴翻转
-
-
-class InstanceNormTransform(object):
-    """实例归一化：将每张图的均值拉到0，方差拉到1，迫使网络只看相对动作形状。"""
-    def __init__(self, eps=1e-5):
-        self.eps = eps
-
-    def __call__(self, tensor):
-        mean = tensor.mean(dim=(1, 2), keepdim=True)
-        std = tensor.std(dim=(1, 2), keepdim=True)
-        return (tensor - mean) / (std + self.eps)
