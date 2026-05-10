@@ -468,8 +468,16 @@ def trainer(trainmodel, img_transform, img_transformte, device, opta, scheduler,
     print(f'Test set size:  {len(dataset_target)} samples, {lengthte} batches')
     print(f'Source eval size: {len(dataset_source_eval)} samples')
 
-    # ── Direction sensitivity auto-detection ──────────────────────────────
-    direction_sensitive = compute_flip_sensitivity(dataset_source, args)
+    # ── Direction sensitivity (manual specification) ────────────────────
+    # XRF55: class 0=circle(agnostic), classes 1-7=directional(sensitive)
+    # Widar: class 0=Push&Pull(merged, agnostic), all others agnostic
+    if args.dataset == 'widar':
+        direction_sensitive = {i: 0.0 for i in range(6)}
+    else:
+        direction_sensitive = {0: 0.0}
+        for i in range(1, 8):
+            direction_sensitive[i] = 0.5
+    print(f'\n[Direction Sensitivity] Manual weights: {direction_sensitive}')
 
     # ── 物理增强实例化 ────────────────────────────────────────────────────────
     var_pct = args.variance_percentile if args else 30

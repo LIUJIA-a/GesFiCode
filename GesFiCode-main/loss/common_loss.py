@@ -126,8 +126,10 @@ class InfoNCE_HardNegative(torch.nn.Module):
 
         # L_pull: standard InfoNCE (pull flip close)
         loss_pull = -pos_sim + torch.log(denominator + 1e-8)
-        # L_push: penalize high similarity (push flip away)
-        loss_push = pos_sim
+        # L_push: margin-based repulsion in raw cosine space (no temperature)
+        # Push apart only if cosine similarity > margin (-0.5), bounded by ReLU
+        cos_pos = (z1 * z2).sum(dim=1)  # raw cosine, in [-1, 1]
+        loss_push = F.relu(cos_pos + 0.5)  # margin = -0.5: push below -0.5 cosine
 
         if direction_mask is None:
             return loss_pull.mean()
