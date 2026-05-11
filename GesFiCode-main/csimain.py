@@ -87,6 +87,8 @@ def get_args():
     parser.add_argument('--max_epoch', type=int,
                         default=50, help="max iterations")
     parser.add_argument('--weight_decay', type=float, default=5e-4)
+    parser.add_argument('--label_smoothing', type=float, default=0.0,
+                        help="label smoothing for CE loss (0.0=disabled)")
     parser.add_argument('--exp_id', type=str, default='exp_1',
                         help="experiment identifier, used to create unique log directory")
     parser.add_argument('--train_envs', type=str, default=None,

@@ -63,7 +63,8 @@ class GeneFi(Algorithm):
         all_x = inputs.cuda().float()
         all_y = labels.cuda().long()
         all_z = self.bottleneck(self.featurizer(all_x))
-        cls_loss = F.cross_entropy(self.classifier(all_z), all_y)
+        _ls = getattr(self.args, 'label_smoothing', 0.0)
+        cls_loss = F.cross_entropy(self.classifier(all_z), all_y, label_smoothing=_ls)
         opt.zero_grad()
         cls_loss.backward()
         opt.step()
@@ -82,7 +83,8 @@ class GeneFi(Algorithm):
         all_x = inputs.cuda().float()
         all_y = labels.cuda().long()
         all_z = self.abottleneck(self.featurizer(all_x))
-        cls_loss = F.cross_entropy(self.aclassifier(all_z), all_y)
+        _ls = getattr(self.args, 'label_smoothing', 0.0)
+        cls_loss = F.cross_entropy(self.aclassifier(all_z), all_y, label_smoothing=_ls)
 
         if x_view1 is not None and x_view2 is not None:
             f1 = self.abottleneck(self.featurizer(x_view1.cuda().float()))
@@ -241,8 +243,8 @@ class GeneFi(Algorithm):
         all_y = labels.cuda().long()
         all_z = self.bottleneck(self.featurizer(all_x))
 
-        # ① 分类损失（主导信号）
-        cls_loss = F.cross_entropy(self.classifier(all_z), all_y)
+        _ls = getattr(self.args, 'label_smoothing', 0.0)
+        cls_loss = F.cross_entropy(self.classifier(all_z), all_y, label_smoothing=_ls)
 
         # ② GRL 域对齐损失（M3 消融时跳过）
         if not skip_grl:
