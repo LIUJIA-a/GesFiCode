@@ -85,7 +85,7 @@ def get_args():
                         default=1, help='local iterations')
     parser.add_argument('--lr', type=float, default=0.0002, help="learning rate")
     parser.add_argument('--max_epoch', type=int,
-                        default=50, help="max iterations")
+                        default=80, help="max iterations")
     parser.add_argument('--weight_decay', type=float, default=5e-4)
     parser.add_argument('--exp_id', type=str, default='exp_1',
                         help="experiment identifier, used to create unique log directory")
@@ -101,8 +101,11 @@ def get_args():
                              "Set very high (e.g. 99) to disable direction detection entirely.")
     parser.add_argument('--test_scene', type=str, default='',
                         help="XRF55 cross_env 留一法: 指定测试场景编号如 1,2,3,4")
-    parser.add_argument('--label_smoothing', type=float, default=0.0,
+    parser.add_argument('--label_smoothing', type=float, default=0.1,
                         help="Label smoothing factor for CE loss (0=off, 0.1=typical)")
+    parser.add_argument('--scheduler', type=str, default='cosine',
+                        choices=['step', 'cosine'],
+                        help="LR scheduler: step (MultiStepLR) or cosine (CosineAnnealingLR)")
     args = parser.parse_args()
     args = act_param_init(args)
     return args
@@ -112,8 +115,11 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 net = GeneFi(args).to(device)
 params = net.parameters()
 optimizer = optim.Adam(net.parameters(), lr=args.lr,weight_decay=args.weight_decay, betas=(args.beta1, 0.9))
-milestones = [10,20]
-scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones, gamma=0.1, last_epoch=-1)
+if args.scheduler == 'cosine':
+    scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.max_epoch, eta_min=1e-6)
+else:
+    milestones = [10, 20]
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones, gamma=0.1, last_epoch=-1)
 global_train_acc = []
 global_test_acc = []
 img_transform = transforms.Compose([
@@ -125,6 +131,7 @@ img_transform = transforms.Compose([
         mytransforms.RandomComPre(p=0.2),
         transforms.Resize([224, 224]),
         transforms.ToTensor(),
+        transforms.RandomErasing(p=0.3, scale=(0.02, 0.2)),
     ])
 img_transformte = transforms.Compose([
         transforms.Resize([224, 224]),
